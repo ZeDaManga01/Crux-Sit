@@ -1,2 +1,2 @@
-# crux-sit
-Crux Sit, a game developed in C for the DE1-SoC FPGA with support from the CoLenda GPU
+# Crux Sit
+Um jogo desenvolvido em C para a FPGA DE1-SoC com ajuda da GPU CoLenda
