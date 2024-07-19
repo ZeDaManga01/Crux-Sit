@@ -6,13 +6,37 @@
 #include "mice.h"
 #include "colenda.h"
 
+#include "night.h"
+
 #define MAX_X 640
 #define MAX_Y 480
 
 #define MAX_ENTITIES 20
 #define MAX_BULLETTYPES 3
 #define BULLET_OFFSET 5
+
+#define ZOMBIE 0
+#define WEREWOLF 1
+#define VAMPIRE 2
+
+#define NORMAL_BULLET 0
+#define SILVER_BULLET 1
+#define GARLIC_BULLET 2
+
 #define ENTITY_SPRITE_LAYER_OFFSET 4
+
+typedef struct {
+    unsigned int r;
+    unsigned int g;
+    unsigned int b;
+} rgb_color;
+
+typedef struct {
+    unsigned int r;
+    unsigned int g;
+    unsigned int b;
+    unsigned int a;
+} rgba_color;
 
 typedef struct {
     double lastTime;
@@ -21,10 +45,19 @@ typedef struct {
 }timetracker;
 
 typedef struct {
+    int type;
+
     double x, y;
+    double xo, yo;
+
+    double size_x, size_y;
+
     double vx, vy;
     double ax, ay;
-}entity;
+
+    double hitbox_x, hitbox_y;
+    double hitbox_x_size, hitbox_y_size;
+} entity;
 
 typedef struct cursor {
     int x;
@@ -32,6 +65,40 @@ typedef struct cursor {
     int previous_x;
     int previous_y;
 } cursor;
+
+rgb_color hex_to_rgb(unsigned int hex)
+{
+    rgb_color color;
+    color.b = (hex >> 16) & 0xFF;
+    color.g = (hex >> 8) & 0xFF;
+    color.r = hex & 0xFF;
+    return color;
+}
+
+rgba_color hex_to_rgba(unsigned int hex)
+{
+    rgba_color color;
+    color.a = (hex >> 24) & 0xFF;
+    color.b = (hex >> 16) & 0xFF;
+    color.g = (hex >> 8) & 0xFF;
+    color.r = hex & 0xFF;
+    return color;
+}
+
+void normalize_rgb(rgb_color *color)
+{
+    color->r /= 32;
+    color->g /= 32;
+    color->b /= 32;
+}
+
+void normalize_rgba(rgba_color *color)
+{
+    color->r /= 32;
+    color->g /= 32;
+    color->b /= 32;
+    color->a = (color->a > 0) ? 1 : 0;
+}
 
 double getTime()
 {
@@ -86,12 +153,12 @@ void update_mice_pos(cursor *cursor, Mice *mice)
     return;
 }
 
-int check_collision(int x1, int y1, int x2, int y2, int size_x, int size_y)
+int check_collision(int x1, int y1, int x2, int y2, int size_x1, int size_y1, int size_x2, int size_y2)
 {
-	int c1 = x1 < (x2 + size_x);
-	int c2 = (x1 + size_x) > x2;
-	int c3 = y1 < (y2 + size_y);
-	int c4 = (y1 + size_y) > y2;
+	int c1 = x1 < (x2 + size_x2);
+	int c2 = (x1 + size_x1) > x2;
+	int c3 = y1 < (y2 + size_y2);
+	int c4 = (y1 + size_y1) > y2;
 	
 	return c1 && c2 && c3 && c4;
 }
@@ -130,11 +197,39 @@ void changebullettype(int *bullet)
 
 int main(void)
 {
-    Mice mouse = mice_open();
-    cursor cursor = {0, 0, 0, 0};
     FILE *gpu = NULL;
 
-    if (mouse.fd < 0 || gpu_open(&gpu, DRIVER_NAME) < 0) {
+    if (gpu_open(&gpu, DRIVER_NAME) < 0) {
+        printf("Erro\n");
+        return -1;
+    }
+
+    for (int i = 0; i < 60; i++) {
+        for (int j = 0; j < 80; j++) {
+            set_background_block(gpu, i, j, 6, 7, 7);
+        }
+    }
+
+    set_background(gpu, 2, 1, 5);
+
+    int count_background = 0;
+    rgba_color color;
+    for (int i = 0; i < 60; i++) {
+        for (int j = 0; j < 80; j++) {
+            color = hex_to_rgba(night_data[0][count_background++]);
+            normalize_rgba(&color);
+
+            printf("%d %d %d %d\n", color.r, color.g, color.b, color.a);
+
+            if (color.a)
+                set_background_block(gpu, i, j, color.r, color.g, color.b);
+        }
+    }
+
+    Mice mouse = mice_open();
+    cursor cursor = {0, 0, 0, 0};
+
+    if (mouse.fd < 0) {
         printf("Erro\n");
         return -1;
     }
@@ -148,8 +243,6 @@ int main(void)
     for (int i = 0; i < MAX_ENTITIES; i++) {
         hasEntity[i] = false;
     }
-    
-    set_background(gpu, 0, 0, 0);
 
     int bullet = 0;
 
@@ -157,6 +250,8 @@ int main(void)
 
     double spawnentitytime = 1;
     double count = 0;
+
+    bool collision = false;
 
     for (int i = 1; i < 32; i++) {
         set_sprite(gpu, i, 0, 0, 0, 0);
@@ -169,20 +264,36 @@ int main(void)
         correct_mice_sensitivity(&mouse, 1, 1);
         update_mice_pos(&cursor, &mouse);
 
+        if (mouse.left_press_not_hold) {
+            printf("clicou!\n");
+        }
+
         if (count < spawnentitytime) {
             count += timer.elapsedTime;
         }
         else {
+            example.type = rand() % 3;
             example.x = MAX_X;
+            example.xo = example.x;
             example.y = rand() % MAX_Y;
+            example.yo = example.y;
+            example.size_x = 20;
+            example.size_y = 20;
             example.vx = -(rand() % 300 + 50);
             example.vy = 0;
             example.ax = 0;
             example.ay = 0;
+            example.hitbox_x = example.x - 5;
+            example.hitbox_x = example.y - 5;
+            example.hitbox_x_size = 30;
+            example.hitbox_y_size = 30;
+
+            if(example.type == VAMPIRE) {
+                example.vy = rand() % 200;
+                example.ay = -example.vy;
+            }
     
             int result = createentity(entities, hasEntity, example, MAX_ENTITIES);
-            printf("%d\n", result);
-
             count = 0;
         }
 
@@ -191,32 +302,45 @@ int main(void)
                 continue;
             }
 
-            if (check_collision(cursor.x, cursor.y, entities[i].x, entities[i].y, 20, 20)) {
-                set_sprite(gpu, i + ENTITY_SPRITE_LAYER_OFFSET, 1, entities[i].x, entities[i].y, 0);
+            if (check_collision(cursor.x, cursor.y, entities[i].x, entities[i].y, 20, 20, entities[i].hitbox_x_size, entities[i].hitbox_y_size)) {
+                collision = true;
+                
+                set_sprite(gpu, i + ENTITY_SPRITE_LAYER_OFFSET, 1, entities[i].x, entities[i].y, entities[i].type * 2 + 1);
+                
                 printf("colidiu!\n");
                 
-                if (mouse.left_release) {
+                if (mouse.left_press_not_hold && bullet == entities[i].type) {
                     printf("matou!\n");
                     removeentity(hasEntity, i, MAX_ENTITIES);
                     set_sprite(gpu, i + ENTITY_SPRITE_LAYER_OFFSET, 0, 0, 0, 0);
                     break;
                 }
             } else {
-                set_sprite(gpu, i + ENTITY_SPRITE_LAYER_OFFSET, 1, entities[i].x, entities[i].y, 1);
+                set_sprite(gpu, i + ENTITY_SPRITE_LAYER_OFFSET, 1, entities[i].x, entities[i].y, entities[i].type * 2);
             }
 
             updateVelocity(&entities[i].vx, &entities[i].vy, entities[i].ax, entities[i].ay, timer.elapsedTime);
             updatePosition(&entities[i].x, &entities[i].y, entities[i].vx, entities[i].vy, timer.elapsedTime);
 
+            if (entities[i].type == VAMPIRE && \
+            ((entities[i].y > entities[i].yo && entities[i].ay > 0) || \
+            (entities[i].y < entities[i].yo && entities[i].ay < 0))) {
+                entities[i].ay = -entities[i].ay; 
+            }
+
             if (entities[i].x < -20) {
                 removeentity(hasEntity, i, MAX_ENTITIES);
                 set_sprite(gpu, i + ENTITY_SPRITE_LAYER_OFFSET, 0, 0, 0, 0);
-                printf("entidade %d saiu!\n", i);
                 break;
             }
         }
 
-        set_sprite(gpu, 1, 1, cursor.x, cursor.y, 20);
+        if (collision) {
+            set_sprite(gpu, 1, 0, cursor.x, cursor.y, 20);
+        } else {
+            set_sprite(gpu, 1, 1, cursor.x, cursor.y, 20);
+        }
+        
 
         if (mouse.right_release) {
             changebullettype(&bullet);
@@ -225,12 +349,13 @@ int main(void)
             break;
         }
         
-        set_sprite(gpu, 3, 1, 619, 459, bullet);
+        set_sprite(gpu, 3, 1, 619, 459, bullet * 2);
+
+        collision = false;
     }
 
     mice_close(&mouse);
+
     gpu_close(&gpu);
     return 0;
 }
-
-

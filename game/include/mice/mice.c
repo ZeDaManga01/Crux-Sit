@@ -18,6 +18,7 @@ Mice mice_open()
         .dx = 0,
         .dy = 0,
         .event = false,
+        .left_press_not_hold = false,
         .left_press = false,
         .right_press = false,
         .middle_press = false,
@@ -74,6 +75,8 @@ void mice_read(Mice *mice)
     mice->right_press = mice->event && !(mice->dx || mice->dy) ? (int) (mice->data[0] & 0x2) != 0 : mice->right_press;
     mice->middle_press = mice->event && !(mice->dx || mice->dy) ? (int) (mice->data[0] & 0x4) != 0 : mice->middle_press;
 
+		mice->left_press_not_hold = !mice->previous_left_press && mice->left_press;
+		
     mice->left_release = mice->previous_left_press && !mice->left_press;
     mice->right_release = mice->previous_right_press && !mice->right_press;
     mice->middle_release = mice->previous_middle_press && !mice->middle_press;

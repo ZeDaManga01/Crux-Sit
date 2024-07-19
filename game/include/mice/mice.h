@@ -22,6 +22,8 @@
         signed char dy; /**< O deslocamento vertical do mouse. */
         
         bool event;
+        
+        bool left_press_not_hold;
 
         bool left_press;
         bool right_press;

@@ -1,35 +1,37 @@
-CC = gcc
-
-CFLAGS = -Wall -I$(LIB_DIR) -std=c99
-
-LIB_DIR = include
-
-COLENDA_DIR = colenda
-
-MICE_DIR = mice
-
-LIB_SRCS = $(LIB_DIR)/$(COLENDA_DIR)/colenda.c $(LIB_DIR)/$(MICE_DIR)/mice.c
-
-LIB_OBJS = colenda.o mice.o
-
-MAIN_OBJ = main.o
-
+# Nome do executável
 TARGET = main
 
+# Diretórios
+SRC_DIR = src
+INCLUDE_DIR = include
+COLENDA_DIR = $(INCLUDE_DIR)/colenda
+MICE_DIR = $(INCLUDE_DIR)/mice
+ASSETS_DIR = assets
+
+# Arquivos fonte
+SOURCES = $(SRC_DIR)/main.c $(COLENDA_DIR)/colenda.c $(MICE_DIR)/mice.c $(ASSETS_DIR)/night.c
+
+# Arquivos objeto
+OBJECTS = $(SOURCES:.c=.o)
+
+# Compilador e flags
+CC = gcc
+CFLAGS = -I$(COLENDA_DIR) -I$(MICE_DIR) -I$(ASSETS_DIR) -Wall -Wextra -O2 -std=c99
+
+# Regra padrão
 all: $(TARGET)
 
-$(TARGET): $(MAIN_OBJ) $(LIB_OBJS)
-	$(CC) $(CFLAGS) -o $(TARGET) $(MAIN_OBJ) $(LIB_OBJS) -lrt -lm
+# Linkagem do executável
+$(TARGET): $(OBJECTS) 
+	$(CC) $(OBJECTS) -o $@ -lrt -lm 
 
-$(MAIN_OBJ): main.c $(LIB_DIR)/$(COLENDA_DIR)/colenda.h $(LIB_DIR)/$(MICE_DIR)/mice.h
-	$(CC) $(CFLAGS) -c main.c 
+# Compilação dos arquivos objeto
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
-colenda.o: $(LIB_DIR)/$(COLENDA_DIR)/colenda.c $(LIB_DIR)/$(COLENDA_DIR)/colenda.h
-	$(CC) $(CFLAGS) -c $(LIB_DIR)/$(COLENDA_DIR)/colenda.c
-
-mice.o: $(LIB_DIR)/$(MICE_DIR)/mice.c $(LIB_DIR)/$(MICE_DIR)/mice.h
-	$(CC) $(CFLAGS) -c $(LIB_DIR)/$(MICE_DIR)/mice.c
-
+# Limpeza dos arquivos objeto e executável
 clean:
-	rm -f $(TARGET) $(MAIN_OBJ) $(LIB_OBJS)
+	rm -f $(OBJECTS) $(TARGET)
+
+.PHONY: all clean
 
