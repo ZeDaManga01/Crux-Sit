@@ -142,7 +142,7 @@ void updatevelocity(double *vx, double *vy, double ax, double ay, double elapsed
     *vy += ay * elapsedTime;
 }
 
-void updatecursor(cursor_t *cursor, Mouse *mouse)
+void updatecursor(cursor_t *cursor, mouse_t *mouse)
 {
     cursor->previous_position.x = cursor->position.x;
     cursor->previous_position.y = cursor->position.y;
@@ -249,7 +249,7 @@ int main(void) {
         }
     }
 
-    Mouse mouse = mouseinit();
+    mouse_t mouse = mouseinit();
     cursor_t cursor = { {0, 0}, {0, 0} };
 
     if (mouse.fd < 0) {

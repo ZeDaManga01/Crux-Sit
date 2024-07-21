@@ -12,13 +12,13 @@
  * It sets the file descriptor of the mouse structure to -1 if an error occurs during
  * the file opening process.
  *
- * @return A Mouse structure containing the initialized values.
- * @retval A Mouse structure with the file descriptor set to -1 if an error occurs.
+ * @return A mouse_t structure containing the initialized values.
+ * @retval A mouse_t structure with the file descriptor set to -1 if an error occurs.
  *
  * @note The mouse device file is opened in non-blocking mode.
  * @note The mouse structure is initialized with default values.
  */
-Mouse mouseinit()
+mouse_t mouseinit()
 {
     // Open the mouse device file
     int fd = open((const char*) MOUSE_DEVICE, O_RDONLY | O_NONBLOCK);
@@ -26,11 +26,11 @@ Mouse mouseinit()
     // Return the initialized mouse structure with the file descriptor set to -1 if an error occurs
     if (fd == -1) {
         perror("Error opening mouse device file");
-        return (Mouse){.fd = -1};
+        return (mouse_t){.fd = -1};
     }
 
     // Return the initialized mouse structure with default values
-    return (Mouse){
+    return (mouse_t){
         .fd = fd,
         .data = {0, 0, 0},
         .dx = 0,
@@ -67,7 +67,7 @@ Mouse mouseinit()
  *
  * @note This function does not modify the mouse structure or its file descriptor.
  */
-inline int validatemouse(Mouse *mouse)
+inline int validatemouse(mouse_t *mouse)
 {
      // Check if the mouse structure is not initialized
     if (mouse == NULL)
@@ -90,7 +90,7 @@ inline int validatemouse(Mouse *mouse)
 * @note This function does not return any value.
 * @note The function checks if the file descriptor is valid before closing it.
 */
-void mouseclose(Mouse *mouse)
+void mouseclose(mouse_t *mouse)
 {
     if (mouse->fd >= 0) {
         close(mouse->fd);
@@ -113,7 +113,7 @@ void mouseclose(Mouse *mouse)
 * @retval -EBADF If the mouse file descriptor is invalid.
 * @note The function updates the mouse state variables in the mouse structure.
 */
-int mouseread(Mouse *mouse)
+int mouseread(mouse_t *mouse)
 {   
     int is_valid = validatemouse(mouse);
 
@@ -183,7 +183,7 @@ int mouseread(Mouse *mouse)
  * the file descriptor is invalid, it will do nothing.
  * @note The function updates the movement offsets in the mouse structure.
  */
-void updatemousesensitivity(Mouse *mouse, int mx, int my)
+void updatemousesensitivity(mouse_t *mouse, int mx, int my)
 {
     if(validatemouse(mouse) < 0)
         return;

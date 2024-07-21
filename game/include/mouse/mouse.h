@@ -5,7 +5,7 @@
 
 #define MOUSE_DEVICE "/dev/input/mice"
 
-typedef struct Mouse {
+typedef struct mouse_t {
     int fd;  // File descriptor of the mouse device
     unsigned char data[3];  // Buffer to store raw mouse data
     int dx;  // Horizontal movement offset of the mouse
@@ -30,12 +30,12 @@ typedef struct Mouse {
     bool left_button_released;  // Indicates that the left button was released
     bool right_button_released;  // Indicates that the right button was released
     bool middle_button_released;  // Indicates that the middle button was released
-} Mouse;
+} mouse_t;
 
-Mouse mouseinit(void);
-inline int validatemouse(Mouse *mouse);
-void mouseclose(Mouse *mouse);
-int mouseread(Mouse *mouse);
-void updatemousesensitivity(Mouse *mouse, int mx, int my);
+mouse_t mouseinit(void);
+inline int validatemouse(mouse_t *mouse);
+void mouseclose(mouse_t *mouse);
+int mouseread(mouse_t *mouse);
+void updatemousesensitivity(mouse_t *mouse, int mx, int my);
 
 #endif
