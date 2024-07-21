@@ -179,6 +179,40 @@ int setsprite(FILE *gpu, uint8_t layer, bool show, uint16_t x, uint16_t y, uint1
 }
 
 /**
+* @brief Sets the color of a specific memory location in the sprite memory.
+* This function generates a 64-bit instruction to write color data to a specific memory location in the sprite memory.
+* The instruction includes the opcode (WSM), address, and RGB color values. The RGB values are packed into the instruction
+* using bitwise operations. The instruction is then split into 8-bit blocks and stored in the provided buffer.
+*
+* @param gpu A pointer to the GPU file.
+* @param address The memory address in the sprite memory (0-16383).
+* @param red The red component of the color (0-7).
+* @param green The green component of the color (0-7).
+* @param blue The blue component of the color (0-7).
+*
+* @return SUCCESS if the operation is successful, EINPUT if the input values are invalid,
+* ESIZE if the buffer does not have enough space to store the instruction,
+* EWRITE if a write error occurs in the file.
+*/
+int setspritememory(FILE *gpu, uint_fast16_t address, uint_fast8_t red, uint_fast8_t green, uint_fast8_t blue)
+{
+    char buffer[BUFFER_SIZE];
+
+    if ((red | green | blue) & ~0x7 || address & ~0x3FFF) {
+        return -EINPUT;
+    }
+
+    uint64_t instruction = WSM;
+
+    instruction |= (uint64_t) (address & 0x3FFF) << 4;
+
+   /* dataB */
+    instruction |= (uint64_t) (red & 0x7) << 32;
+    instruction |= (uint64_t) (green & 0x7) << 35;
+    instruction |= (uint64_t) (blue & 0x7) << 38;
+}
+
+/**
  * @brief Defines the parameters of a polygon in the instruction buffer.
  *
  * This function generates a 64-bit instruction that represents a command to be sent to the character driver.
