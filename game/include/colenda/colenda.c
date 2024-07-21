@@ -1,6 +1,17 @@
 #include "colenda.h"
+#include <string.h>
 
-int gpu_open(FILE **file, const char *driver_name)
+/**
+* @brief Opens a file in read/write mode for GPU operations.
+* This function attempts to open a file with the given driver name in read/write mode.
+* If the file is successfully opened, the file pointer is stored in the provided address.
+* If the file cannot be opened, an error code is returned.
+* @param file A pointer to a FILE pointer. The opened file will be stored in this address.
+* @param driver_name The name of the GPU driver file to be opened.
+* @return SUCCESS if the file is opened successfully.
+* @return -EOPEN if the file cannot be opened.
+ */
+int gpuopen(FILE **file, const char *driver_name)
 {
     *file = fopen(driver_name, "r+");
 
@@ -11,7 +22,16 @@ int gpu_open(FILE **file, const char *driver_name)
     return SUCCESS;
 }
 
-int gpu_close(FILE **file)
+/**
+* @brief Closes an open file for GPU operations.
+* This function attempts to close a file that has been previously opened for GPU operations.
+* If the file is successfully closed, the file pointer is set to NULL.
+* If the file cannot be closed, an error code is returned.
+* @param file A pointer to a FILE pointer. The opened file will be closed and the pointer will be set to NULL.
+* @return SUCCESS if the file is closed successfully.
+* @return -ECLOSE if the file cannot be closed.
+*/
+int gpuclose(FILE **file)
 {
     if(!fclose(*file)) {
         return -ECLOSE;
@@ -22,20 +42,44 @@ int gpu_close(FILE **file)
     return SUCCESS;
 }
 
-int gpu_write(FILE *file, const char *buffer)
+/**
+* @brief Writes data from a buffer to an open file for GPU operations.
+* This function attempts to write data from a buffer to an open file for GPU operations.
+* It uses the fwrite function to write the data, and then seeks back to the beginning of the file.
+* If the number of bytes written is not equal to the BUFFER_SIZE, an error code is returned.
+* @param file A pointer to the FILE object representing the open file.
+* @param buffer A pointer to the buffer containing the data to be written.
+* @return SUCCESS if the data is written successfully.
+* @return -EWRITE if the number of bytes written is not equal to BUFFER_SIZE.
+*/
+int gpuwrite(FILE *file, const char *buffer)
 {
-    int bytes_write = fwrite(buffer, sizeof(char), BUFFER_SIZE, file);
+    int bytes = fwrite(buffer, sizeof(char), BUFFER_SIZE, file);
 
-    fseek(file, 0, SEEK_SET);
-		
-    if (bytes_write != 8) {
+    if (bytes != BUFFER_SIZE) {
         return -EWRITE;
     }
+
+    fseek(file, 0, SEEK_SET);
 
     return SUCCESS;
 }
 
-int copy_to_buffer(char *buffer, size_t size, uint64_t instruction) {
+/**
+* @brief Copies a 64-bit instruction to a buffer in little-endian format.
+* This function takes a 64-bit instruction and copies it to a buffer in little-endian format.
+* It checks if the buffer has enough space to store the instruction. If the buffer is too small,
+* it returns -ESIZE. Otherwise, it copies the instruction byte by byte, starting from the least
+* significant byte (LSB) and moving to the most significant byte (MSB).
+* @param buffer A pointer to the buffer where the instruction will be copied.
+* @param size The size of the buffer in bytes.
+* @param instruction The 64-bit instruction to be copied to the buffer.
+* @return SUCCESS if the instruction is copied successfully to the buffer.
+* @return -ESIZE if the buffer is too small to store the instruction.
+*/
+int copytobuffer(char *buffer, size_t size, uint64_t instruction) {
+    memset(buffer, 0, BUFFER_SIZE);
+
     if (size < BUFFER_SIZE) {
         return -ESIZE;
     }
@@ -48,24 +92,24 @@ int copy_to_buffer(char *buffer, size_t size, uint64_t instruction) {
 }
 
 /**
- * @brief Define a cor de fundo do jogo.
+ * @brief Defines the game's background color.
  *
- * Esta função gera uma instrução uint64_t que representa um comando para enviar ao driver de caracteres.
- * A instrução inclui o opcode (WBR) e os valores RGB da cor. Os valores RGB são empacotados na instrução
- * usando operações bit a bit. A instrução é então dividida em blocos de 8 bits e armazenada no buffer fornecido.
+ * This function generates a uint64_t instruction that represents a command to be sent to the character driver.
+ * The instruction includes the opcode (WBR) and the RGB color values. The RGB values are packed into the instruction
+ * using bitwise operations. The instruction is then split into 8-bit blocks and stored in the provided buffer.
  *
- * @param gpu Um ponteiro para o arquivo da GPU.
- * @param red O componente vermelho da cor (0-7).
- * @param green O componente verde da cor (0-7).
- * @param blue O componente azul da cor (0-7).
+ * @param gpu A pointer to the GPU file.
+ * @param red The red component of the color (0-7).
+ * @param green The green component of the color (0-7).
+ * @param blue The blue component of the color (0-7).
  *
- * @return SUCCESS se a operação for bem-sucedida, EINPUT se os valores de entrada forem inválidos,
- * ESIZE se o buffer não tiver espaço suficiente para armazenar a instrução,
- * EWRITE se ocorrer um erro de escrita no arquivo.
+ * @return SUCCESS if the operation is successful, EINPUT if the input values are invalid,
+ * ESIZE if the buffer does not have enough space to store the instruction,
+ * EWRITE if a write error occurs in the file.
  */
-int set_background(FILE *gpu, uint8_t red, uint8_t green, uint8_t blue)
+int setbackground(FILE *gpu, uint8_t red, uint8_t green, uint8_t blue)
 {
-    char buffer[BUFFER_SIZE] = {0,0,0,0,0,0,0,0};
+    char buffer[BUFFER_SIZE];
 
     if ((red | green | blue) & ~0x7) /* Entrada do usuário inválida */ {
         return -EINPUT;
@@ -79,37 +123,38 @@ int set_background(FILE *gpu, uint8_t red, uint8_t green, uint8_t blue)
     instruction |= (uint64_t) (green & 0x7) << 35; // 3 bits da cor passada
     instruction |= (uint64_t) (blue & 0x7) << 38; // 6 bits
 
-    if (copy_to_buffer(buffer, BUFFER_SIZE, instruction) != 0) {
+    if (copytobuffer(buffer, BUFFER_SIZE, instruction) != 0) {
         return -ESIZE;
     }
 
-    return gpu_write(gpu, buffer);
+    return gpuwrite(gpu, buffer);
 }
 
 /**
- * @brief Define os parâmetros do sprite no buffer de instruções.
+ * @brief Defines the sprite parameters in the instruction buffer.
  *
- * Esta função gera uma instrução de 64 bits que representa um comando para enviar ao driver de caracteres.
- * A instrução inclui o opcode (WBR), registrador do sprite, sinalizador de visibilidade, coordenadas e deslocamento.
- * Os parâmetros são empacotados na instrução usando operações bit a bit. A instrução é então dividida em
- * blocos de 8 bits e armazenada no buffer fornecido.
+ * This function generates a 64-bit instruction that represents a command to be sent to the character driver.
+ * The instruction includes the opcode (WBR), sprite register, visibility flag, coordinates, and offset.
+ * The parameters are packed into the instruction using bitwise operations. The instruction is then split into
+ * 8-bit blocks and stored in the provided buffer.
  *
- * @param gpu Um ponteiro para o arquivo da GPU.
- * @param layer O registrador do sprite (0-31).
- * @param show O sinalizador de visibilidade (0: oculto, 1: visível).
- * @param x A coordenada x do sprite (0-1023).
- * @param y A coordenada y do sprite (0-1023).
- * @param sprite O deslocamento do sprite na memória (0-511).
+ * @param gpu A pointer to the GPU file.
+ * @param layer The sprite register (0-31).
+ * @param show The visibility flag (0: hidden, 1: visible).
+ * @param x The x-coordinate of the sprite (0-1023).
+ * @param y The y-coordinate of the sprite (0-1023).
+ * @param sprite The sprite offset in memory (0-511).
  *
- * @return SUCCESS se a operação for bem-sucedida, EINPUT se os valores de entrada forem inválidos,
- * ESIZE se o buffer não tiver espaço suficiente para armazenar a instrução,
- * EWRITE se ocorrer um erro de escrita no arquivo.
+ * @return SUCCESS if the operation is successful, EINPUT if the input values are invalid,
+ * ESIZE if the buffer does not have enough space to store the instruction,
+ * EWRITE if a write error occurs in the file.
  */
-int set_sprite(FILE *gpu, uint8_t layer, int show, uint16_t x, uint16_t y, uint16_t sprite)
+int setsprite(FILE *gpu, uint8_t layer, bool show, uint16_t x, uint16_t y, uint16_t sprite)
 {
-    char buffer[BUFFER_SIZE] = {0,0,0,0,0,0,0,0};
+    char buffer[BUFFER_SIZE];
 
-    if (((x | y) & ~0x3FF) || (sprite & ~0x1FF) || (layer & ~0x1F)) /* Entrada do usuário inválida */ {
+    // Check for invalid input values
+    if (((x | y) & ~0x3FF) || (sprite & ~0x1FF) || (layer & ~0x1F)) {
         return -EINPUT;
     }
 
@@ -124,40 +169,40 @@ int set_sprite(FILE *gpu, uint8_t layer, int show, uint16_t x, uint16_t y, uint1
     instruction |= (uint64_t) (x & 0x3FF) << 51;
     instruction |= (uint64_t) (show & 0x1) << 61;
     
-    copy_to_buffer(buffer, BUFFER_SIZE, instruction);
+    copytobuffer(buffer, BUFFER_SIZE, instruction);
 
-    if (copy_to_buffer(buffer, BUFFER_SIZE, instruction) != 0) {
+    if (copytobuffer(buffer, BUFFER_SIZE, instruction) != 0) {
         return -ESIZE;
     }
 
-    return gpu_write(gpu, buffer);
-};
+    return gpuwrite(gpu, buffer);
+}
 
 /**
- * @brief Define os parâmetros de um polígono no buffer de instruções.
+ * @brief Defines the parameters of a polygon in the instruction buffer.
  *
- * Esta função gera uma instrução de 64 bits que representa um comando para enviar ao driver de caracteres.
- * A instrução inclui o opcode (DP), endereço, tipo, coordenadas, cor e tamanho.
- * Os parâmetros são empacotados na instrução usando operações bit a bit. A instrução é então dividida em
- * blocos de 8 bits e armazenada no buffer fornecido.
+ * This function generates a 64-bit instruction that represents a command to be sent to the character driver.
+ * The instruction includes the opcode (DP), address, type, coordinates, color, and size.
+ * The parameters are packed into the instruction using bitwise operations. The instruction is then split into
+ * 8-bit blocks and stored in the provided buffer.
  *
- * @param gpu Um ponteiro para o arquivo da GPU.
- * @param layer O endereço do polígono (0-15).
- * @param type O tipo do polígono (0: quadrado, 1: triângulo).
- * @param x A coordenada x do polígono (0-511).
- * @param y A coordenada y do polígono (0-511).
- * @param red O componente vermelho da cor (0-7).
- * @param green O componente verde da cor (0-7).
- * @param blue O componente azul da cor (0-7).
- * @param size O tamanho do polígono (0-15).
+ * @param gpu A pointer to the GPU file.
+ * @param layer The polygon address (0-15).
+ * @param type The type of the polygon (0: square, 1: triangle).
+ * @param x The x-coordinate of the polygon (0-511).
+ * @param y The y-coordinate of the polygon (0-511).
+ * @param red The red component of the color (0-7).
+ * @param green The green component of the color (0-7).
+ * @param blue The blue component of the color (0-7).
+ * @param size The size of the polygon (0-15).
  *
- * @return SUCCESS se a operação for bem-sucedida, EINPUT se os valores de entrada forem inválidos,
- * ESIZE se o buffer não tiver espaço suficiente para armazenar a instrução,
- * EWRITE se ocorrer um erro de escrita no arquivo.
+ * @return SUCCESS if the operation is successful, EINPUT if the input values are invalid,
+ * ESIZE if the buffer does not have enough space to store the instruction,
+ * EWRITE if a write error occurs in the file.
  */
-int set_poligon(FILE *gpu, uint_fast8_t layer, uint_fast8_t type, uint16_t x, uint16_t y, uint_fast8_t red, uint_fast8_t green, uint_fast8_t blue, uint_fast8_t size)
+int setpoligon(FILE *gpu, uint_fast8_t layer, uint_fast8_t type, uint16_t x, uint16_t y, uint_fast8_t red, uint_fast8_t green, uint_fast8_t blue, uint_fast8_t size)
 {
-    char buffer[BUFFER_SIZE] = {0,0,0,0,0,0,0,0};
+    char buffer[BUFFER_SIZE];
 
     if (((red | green | blue) & ~0x7) || (size & ~0xF) || ((x | y) & ~0x1FF) || (type & ~0x1) || (layer & ~0x1F)) /* Entrada do usuário inválida */ {
         return -EINPUT;
@@ -177,36 +222,36 @@ int set_poligon(FILE *gpu, uint_fast8_t layer, uint_fast8_t type, uint16_t x, ui
     instruction |= (uint64_t) (blue & 0x7) << 60;
     instruction |= (uint64_t) (type & 0x1) << 63;
 
-    if (copy_to_buffer(buffer, BUFFER_SIZE, instruction) != 0) {
+    if (copytobuffer(buffer, BUFFER_SIZE, instruction) != 0) {
         return -ESIZE;
     }
 
-    return gpu_write(gpu, buffer);
-};
+    return gpuwrite(gpu, buffer);
+}
 
 /**
- * @brief Define a cor de um bloco específico no background.
+ * @brief Defines the color of a specific block in the background.
  *
- * Esta função calcula o endereço do bloco com base nas linhas e colunas fornecidas,
- * e então gera uma instrução WBM para escrever os dados de cor no endereço especificado na memória de background.
- * A função verifica os valores de entrada válidos e retorna um código de erro se necessário.
+ * This function calculates the block address based on the provided rows and columns,
+ * and then generates a WBM instruction to write the color data to the specified address in the background memory.
+ * The function checks for valid input values and returns an error code if necessary.
  *
- * @param gpu Um ponteiro para o arquivo da GPU.
- * @param row A linha do índice do bloco (baseado em 0).
- * @param column A coluna do índice do bloco (baseado em 0).
- * @param red O componente vermelho da cor (0-7).
- * @param green O componente verde da cor (0-7).
- * @param blue O componente azul da cor (0-7).
+ * @param gpu A pointer to the GPU file.
+ * @param x The column index of the block (zero-based).
+ * @param y The row index of the block (zero-based).
+ * @param red The red component of the color (0-7).
+ * @param green The green component of the color (0-7).
+ * @param blue The blue component of the color (0-7).
  *
- * @return SUCCESS se a operação for bem-sucedida, EINPUT se os valores de entrada forem inválidos,
- * ESIZE se o buffer não tiver espaço suficiente para armazenar a instrução.
- * EWRITE se ocorrer um erro de escrita no arquivo.
+ * @return SUCCESS if the operation is successful, EINPUT if the input values are invalid,
+ * ESIZE if the buffer does not have enough space to store the instruction,
+ * EWRITE if a write error occurs in the file.
  */
-int set_background_block(FILE *gpu, uint_fast8_t row, uint_fast8_t column, uint_fast8_t red, uint_fast8_t green, uint_fast8_t blue)
+int setbackgroundblock(FILE *gpu, uint_fast8_t x, uint_fast8_t y, uint_fast8_t red, uint_fast8_t green, uint_fast8_t blue)
 {
-    char buffer[BUFFER_SIZE] = {0,0,0,0,0,0,0,0};
+    char buffer[BUFFER_SIZE];
 
-    uint16_t address = row * (SCREEN_WIDTH / BLOCK_SIZE) + column;
+    uint16_t address = y * (SCREEN_WIDTH / BLOCK_SIZE) + x;
 
     if ((red | green | blue) & ~0x7 || (address & ~0x3FFF) >= ((SCREEN_HEIGHT / BLOCK_SIZE) * (SCREEN_WIDTH / BLOCK_SIZE))) /* Entrada do usuário inválida */ {
         return -EINPUT;
@@ -222,27 +267,9 @@ int set_background_block(FILE *gpu, uint_fast8_t row, uint_fast8_t column, uint_
     instruction |= (uint64_t) (green & 0x7) << 35; // 3 bits da cor passada
     instruction |= (uint64_t) (blue & 0x7) << 38; // 6 bits
 
-    if (copy_to_buffer(buffer, BUFFER_SIZE, instruction) != 0) {
+    if (copytobuffer(buffer, BUFFER_SIZE, instruction) != 0) {
         return -ESIZE;
     }
 
-    return gpu_write(gpu, buffer);
-};
-
-/**
- * @brief Imprime o conteúdo de um buffer em formato hexadecimal.
- *
- * Esta função itera pelos elementos de um buffer e imprime cada byte em formato hexadecimal.
- * É útil para depuração e inspecionar o conteúdo de um buffer.
- *
- * @param buffer Um ponteiro para o buffer cujo conteúdo será impresso.
- * @param size O número de elementos no buffer.
- *
- * @return void
- */
-void print_buffer(const char *buffer, size_t size)
-{
-    for (size_t i = 0; i < size; i++) {
-        printf("%02x ", (unsigned char) buffer[i]);
-    }
+    return gpuwrite(gpu, buffer);
 }
