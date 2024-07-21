@@ -25,7 +25,6 @@ mouse_t mouseinit()
 
     // Return the initialized mouse structure with the file descriptor set to -1 if an error occurs
     if (fd == -1) {
-        perror("Error opening mouse device file");
         return (mouse_t){.fd = -1};
     }
 

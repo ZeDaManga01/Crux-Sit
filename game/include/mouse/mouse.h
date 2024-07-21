@@ -32,8 +32,8 @@ typedef struct mouse_t {
     bool middle_button_released;  // Indicates that the middle button was released
 } mouse_t;
 
+int validatemouse(mouse_t *mouse);
 mouse_t mouseinit(void);
-inline int validatemouse(mouse_t *mouse);
 void mouseclose(mouse_t *mouse);
 int mouseread(mouse_t *mouse);
 void updatemousesensitivity(mouse_t *mouse, int mx, int my);

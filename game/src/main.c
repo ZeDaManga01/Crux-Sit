@@ -216,7 +216,7 @@ int clearbackground(FILE **gpu)
 {
     for (int i = 0; i < 60; i++) {
         for (int j = 0; j < 80; j++) {
-            setbackgroundblock(*gpu, i, j, 6, 7, 7);
+            setbackgroundblock(*gpu, j, i, 6, 7, 7);
         }
     }
 }
@@ -231,7 +231,7 @@ int main(void) {
 
     for (int i = 0; i < 60; i++) {
         for (int j = 0; j < 80; j++) {
-            setbackgroundblock(gpu, i, j, 6, 7, 7);
+            setbackgroundblock(gpu, j, i, 6, 7, 7);
         }
     }
 
@@ -250,13 +250,14 @@ int main(void) {
     }
 
     mouse_t mouse = mouseinit();
-    cursor_t cursor = { {0, 0}, {0, 0} };
 
     if (mouse.fd < 0) {
         printf("Erro\n");
         return -1;
     }
 
+    cursor_t cursor = { {0, 0}, {0, 0} };
+    
     timetracker_t timer;
     timer.lastTime = gettime();
 
