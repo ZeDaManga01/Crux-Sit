@@ -1,0 +1,412 @@
+\hypertarget{colenda_8h}{}\doxysection{game/include/colenda/colenda.h File Reference}
+\label{colenda_8h}\index{game/include/colenda/colenda.h@{game/include/colenda/colenda.h}}
+{\ttfamily \#include $<$stdio.\+h$>$}\newline
+{\ttfamily \#include $<$stdint.\+h$>$}\newline
+{\ttfamily \#include $<$errno.\+h$>$}\newline
+{\ttfamily \#include $<$stdbool.\+h$>$}\newline
+Include dependency graph for colenda.\+h\+:
+% FIG 0
+This graph shows which files directly or indirectly include this file\+:
+% FIG 1
+\doxysubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{colenda_8h_a25634d21648ca7fb7a2aca614bafaaeb}{DRIVER\+\_\+\+NAME}}~\char`\"{}/dev/colenda\+\_\+driver\char`\"{}
+\item 
+\#define \mbox{\hyperlink{colenda_8h_ac52fd84155775c3bf831562344118510}{WBR}}~0b0000
+\item 
+\#define \mbox{\hyperlink{colenda_8h_a72054d497fcb7d5da97e7ad475b6ae0f}{WSM}}~0b0001
+\item 
+\#define \mbox{\hyperlink{colenda_8h_a5f267a21ee0cf4672ebda79becd73488}{WBM}}~0b0010
+\item 
+\#define \mbox{\hyperlink{colenda_8h_ab3383e72bb58d5e6faf0501cd117acfa}{DP}}~0b0011
+\item 
+\#define \mbox{\hyperlink{colenda_8h_aa90cac659d18e8ef6294c7ae337f6b58}{SUCCESS}}~0
+\item 
+\#define \mbox{\hyperlink{colenda_8h_acb09eefda9ef228712245d1104fe9c89}{ESIZE}}~EINVAL
+\item 
+\#define \mbox{\hyperlink{colenda_8h_aadb49f66425075097b993b8b63ed7e8c}{EINPUT}}~EINVAL
+\item 
+\#define \mbox{\hyperlink{colenda_8h_a605b5204f13f44ba8d895e5cf463001c}{EOPEN}}~EIO
+\item 
+\#define \mbox{\hyperlink{colenda_8h_ad5dde4a98ab391328b098429e507dbd0}{ECLOSE}}~EIO
+\item 
+\#define \mbox{\hyperlink{colenda_8h_a614ea8b89ac6fc2eef075a58ecd222eb}{EWRITE}}~EIO
+\item 
+\#define \mbox{\hyperlink{colenda_8h_a2cd109632a6dcccaa80b43561b1ab700}{SCREEN\+\_\+\+WIDTH}}~640
+\item 
+\#define \mbox{\hyperlink{colenda_8h_a6974d08a74da681b3957b2fead2608b8}{SCREEN\+\_\+\+HEIGHT}}~480
+\item 
+\#define \mbox{\hyperlink{colenda_8h_ad51ded0bbd705f02f73fc60c0b721ced}{BLOCK\+\_\+\+SIZE}}~8
+\item 
+\#define \mbox{\hyperlink{colenda_8h_a177cd88f437231ea6c72a7e51b4ca45d}{DIVIDED\+\_\+\+SCREEN\+\_\+\+WIDTH}}~(\mbox{\hyperlink{colenda_8h_a2cd109632a6dcccaa80b43561b1ab700}{SCREEN\+\_\+\+WIDTH}} / \mbox{\hyperlink{colenda_8h_ad51ded0bbd705f02f73fc60c0b721ced}{BLOCK\+\_\+\+SIZE}})
+\item 
+\#define \mbox{\hyperlink{colenda_8h_a5ca5b58b7b8893941a6c7479cffa0e37}{DIVIDED\+\_\+\+SCREEN\+\_\+\+HEIGHT}}~(\mbox{\hyperlink{colenda_8h_a6974d08a74da681b3957b2fead2608b8}{SCREEN\+\_\+\+HEIGHT}} / \mbox{\hyperlink{colenda_8h_ad51ded0bbd705f02f73fc60c0b721ced}{BLOCK\+\_\+\+SIZE}})
+\item 
+\#define \mbox{\hyperlink{colenda_8h_a6b20d41d6252e9871430c242cb1a56e7}{BUFFER\+\_\+\+SIZE}}~8
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+int \mbox{\hyperlink{colenda_8h_ad49fcf1eeb40ab0a5f9ff76793152d88}{gpuopen}} (FILE $\ast$$\ast$file, const char $\ast$driver\+\_\+name)
+\begin{DoxyCompactList}\small\item\em Opens a file in read/write mode for GPU operations. This function attempts to open a file with the given driver name in read/write mode. If the file is successfully opened, the file pointer is stored in the provided address. If the file cannot be opened, an error code is returned. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{colenda_8h_ad2efa95f5418b498704ec5b6358c503d}{gpuclose}} (FILE $\ast$$\ast$file)
+\begin{DoxyCompactList}\small\item\em Closes an open file for GPU operations. This function attempts to close a file that has been previously opened for GPU operations. If the file is successfully closed, the file pointer is set to NULL. If the file cannot be closed, an error code is returned. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{colenda_8h_a3da689af6679a00fe19934a926b9a712}{gpuwrite}} (FILE $\ast$file, const char $\ast$buffer)
+\begin{DoxyCompactList}\small\item\em Writes data from a buffer to an open file for GPU operations. This function attempts to write data from a buffer to an open file for GPU operations. It uses the fwrite function to write the data, and then seeks back to the beginning of the file. If the number of bytes written is not equal to the BUFFER\+\_\+\+SIZE, an error code is returned. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{colenda_8h_aa6801541e2a9316010ea1541f2c255ae}{copytobuffer}} (char $\ast$buffer, size\+\_\+t size, uint64\+\_\+t instruction)
+\begin{DoxyCompactList}\small\item\em Copies a 64-\/bit instruction to a buffer in little-\/endian format. This function takes a 64-\/bit instruction and copies it to a buffer in little-\/endian format. It checks if the buffer has enough space to store the instruction. If the buffer is too small, it returns -\/ESIZE. Otherwise, it copies the instruction byte by byte, starting from the least significant byte (LSB) and moving to the most significant byte (MSB). \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{colenda_8h_a8ada87d1df0055fd2c542e9e52e9719c}{setbackground}} (FILE $\ast$\mbox{\hyperlink{main_8c_af540bcd0cdebabad789db751ac6e3345}{gpu}}, uint8\+\_\+t red, uint8\+\_\+t green, uint8\+\_\+t blue)
+\begin{DoxyCompactList}\small\item\em Defines the game\textquotesingle{}s background color. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{colenda_8h_a536e442de6448efcdab384d1ab0ee5dc}{setsprite}} (FILE $\ast$\mbox{\hyperlink{main_8c_af540bcd0cdebabad789db751ac6e3345}{gpu}}, uint8\+\_\+t layer, bool show, uint16\+\_\+t x, uint16\+\_\+t y, uint16\+\_\+t sprite)
+\begin{DoxyCompactList}\small\item\em Defines the sprite parameters in the instruction buffer. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{colenda_8h_af1096d4e41f291e9bd672a4846cf4eae}{setspritememory}} (FILE $\ast$\mbox{\hyperlink{main_8c_af540bcd0cdebabad789db751ac6e3345}{gpu}}, uint\+\_\+fast16\+\_\+t address, uint\+\_\+fast8\+\_\+t red, uint\+\_\+fast8\+\_\+t green, uint\+\_\+fast8\+\_\+t blue)
+\begin{DoxyCompactList}\small\item\em Sets the color of a specific memory location in the sprite memory. This function generates a 64-\/bit instruction to write color data to a specific memory location in the sprite memory. The instruction includes the opcode (WSM), address, and RGB color values. The RGB values are packed into the instruction using bitwise operations. The instruction is then split into 8-\/bit blocks and stored in the provided buffer. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{colenda_8h_aa89b28a8469f3d81226eb1fdd68e334a}{setpoligon}} (FILE $\ast$\mbox{\hyperlink{main_8c_af540bcd0cdebabad789db751ac6e3345}{gpu}}, uint\+\_\+fast8\+\_\+t layer, uint\+\_\+fast8\+\_\+t type, uint16\+\_\+t x, uint16\+\_\+t y, uint\+\_\+fast8\+\_\+t red, uint\+\_\+fast8\+\_\+t green, uint\+\_\+fast8\+\_\+t blue, uint\+\_\+fast8\+\_\+t size)
+\begin{DoxyCompactList}\small\item\em Defines the parameters of a polygon in the instruction buffer. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{colenda_8h_a6f56e1840276763084043ecd899d5082}{setbackgroundblock}} (FILE $\ast$\mbox{\hyperlink{main_8c_af540bcd0cdebabad789db751ac6e3345}{gpu}}, uint\+\_\+fast8\+\_\+t row, uint\+\_\+fast8\+\_\+t column, uint\+\_\+fast8\+\_\+t red, uint\+\_\+fast8\+\_\+t green, uint\+\_\+fast8\+\_\+t blue)
+\begin{DoxyCompactList}\small\item\em Defines the color of a specific block in the background. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Macro Definition Documentation}
+\mbox{\Hypertarget{colenda_8h_ad51ded0bbd705f02f73fc60c0b721ced}\label{colenda_8h_ad51ded0bbd705f02f73fc60c0b721ced}} 
+\index{colenda.h@{colenda.h}!BLOCK\_SIZE@{BLOCK\_SIZE}}
+\index{BLOCK\_SIZE@{BLOCK\_SIZE}!colenda.h@{colenda.h}}
+\doxysubsubsection{\texorpdfstring{BLOCK\_SIZE}{BLOCK\_SIZE}}
+{\footnotesize\ttfamily \#define BLOCK\+\_\+\+SIZE~8}
+
+\mbox{\Hypertarget{colenda_8h_a6b20d41d6252e9871430c242cb1a56e7}\label{colenda_8h_a6b20d41d6252e9871430c242cb1a56e7}} 
+\index{colenda.h@{colenda.h}!BUFFER\_SIZE@{BUFFER\_SIZE}}
+\index{BUFFER\_SIZE@{BUFFER\_SIZE}!colenda.h@{colenda.h}}
+\doxysubsubsection{\texorpdfstring{BUFFER\_SIZE}{BUFFER\_SIZE}}
+{\footnotesize\ttfamily \#define BUFFER\+\_\+\+SIZE~8}
+
+\mbox{\Hypertarget{colenda_8h_a5ca5b58b7b8893941a6c7479cffa0e37}\label{colenda_8h_a5ca5b58b7b8893941a6c7479cffa0e37}} 
+\index{colenda.h@{colenda.h}!DIVIDED\_SCREEN\_HEIGHT@{DIVIDED\_SCREEN\_HEIGHT}}
+\index{DIVIDED\_SCREEN\_HEIGHT@{DIVIDED\_SCREEN\_HEIGHT}!colenda.h@{colenda.h}}
+\doxysubsubsection{\texorpdfstring{DIVIDED\_SCREEN\_HEIGHT}{DIVIDED\_SCREEN\_HEIGHT}}
+{\footnotesize\ttfamily \#define DIVIDED\+\_\+\+SCREEN\+\_\+\+HEIGHT~(\mbox{\hyperlink{colenda_8h_a6974d08a74da681b3957b2fead2608b8}{SCREEN\+\_\+\+HEIGHT}} / \mbox{\hyperlink{colenda_8h_ad51ded0bbd705f02f73fc60c0b721ced}{BLOCK\+\_\+\+SIZE}})}
+
+\mbox{\Hypertarget{colenda_8h_a177cd88f437231ea6c72a7e51b4ca45d}\label{colenda_8h_a177cd88f437231ea6c72a7e51b4ca45d}} 
+\index{colenda.h@{colenda.h}!DIVIDED\_SCREEN\_WIDTH@{DIVIDED\_SCREEN\_WIDTH}}
+\index{DIVIDED\_SCREEN\_WIDTH@{DIVIDED\_SCREEN\_WIDTH}!colenda.h@{colenda.h}}
+\doxysubsubsection{\texorpdfstring{DIVIDED\_SCREEN\_WIDTH}{DIVIDED\_SCREEN\_WIDTH}}
+{\footnotesize\ttfamily \#define DIVIDED\+\_\+\+SCREEN\+\_\+\+WIDTH~(\mbox{\hyperlink{colenda_8h_a2cd109632a6dcccaa80b43561b1ab700}{SCREEN\+\_\+\+WIDTH}} / \mbox{\hyperlink{colenda_8h_ad51ded0bbd705f02f73fc60c0b721ced}{BLOCK\+\_\+\+SIZE}})}
+
+\mbox{\Hypertarget{colenda_8h_ab3383e72bb58d5e6faf0501cd117acfa}\label{colenda_8h_ab3383e72bb58d5e6faf0501cd117acfa}} 
+\index{colenda.h@{colenda.h}!DP@{DP}}
+\index{DP@{DP}!colenda.h@{colenda.h}}
+\doxysubsubsection{\texorpdfstring{DP}{DP}}
+{\footnotesize\ttfamily \#define DP~0b0011}
+
+\mbox{\Hypertarget{colenda_8h_a25634d21648ca7fb7a2aca614bafaaeb}\label{colenda_8h_a25634d21648ca7fb7a2aca614bafaaeb}} 
+\index{colenda.h@{colenda.h}!DRIVER\_NAME@{DRIVER\_NAME}}
+\index{DRIVER\_NAME@{DRIVER\_NAME}!colenda.h@{colenda.h}}
+\doxysubsubsection{\texorpdfstring{DRIVER\_NAME}{DRIVER\_NAME}}
+{\footnotesize\ttfamily \#define DRIVER\+\_\+\+NAME~\char`\"{}/dev/colenda\+\_\+driver\char`\"{}}
+
+\mbox{\Hypertarget{colenda_8h_ad5dde4a98ab391328b098429e507dbd0}\label{colenda_8h_ad5dde4a98ab391328b098429e507dbd0}} 
+\index{colenda.h@{colenda.h}!ECLOSE@{ECLOSE}}
+\index{ECLOSE@{ECLOSE}!colenda.h@{colenda.h}}
+\doxysubsubsection{\texorpdfstring{ECLOSE}{ECLOSE}}
+{\footnotesize\ttfamily \#define ECLOSE~EIO}
+
+\mbox{\Hypertarget{colenda_8h_aadb49f66425075097b993b8b63ed7e8c}\label{colenda_8h_aadb49f66425075097b993b8b63ed7e8c}} 
+\index{colenda.h@{colenda.h}!EINPUT@{EINPUT}}
+\index{EINPUT@{EINPUT}!colenda.h@{colenda.h}}
+\doxysubsubsection{\texorpdfstring{EINPUT}{EINPUT}}
+{\footnotesize\ttfamily \#define EINPUT~EINVAL}
+
+\mbox{\Hypertarget{colenda_8h_a605b5204f13f44ba8d895e5cf463001c}\label{colenda_8h_a605b5204f13f44ba8d895e5cf463001c}} 
+\index{colenda.h@{colenda.h}!EOPEN@{EOPEN}}
+\index{EOPEN@{EOPEN}!colenda.h@{colenda.h}}
+\doxysubsubsection{\texorpdfstring{EOPEN}{EOPEN}}
+{\footnotesize\ttfamily \#define EOPEN~EIO}
+
+\mbox{\Hypertarget{colenda_8h_acb09eefda9ef228712245d1104fe9c89}\label{colenda_8h_acb09eefda9ef228712245d1104fe9c89}} 
+\index{colenda.h@{colenda.h}!ESIZE@{ESIZE}}
+\index{ESIZE@{ESIZE}!colenda.h@{colenda.h}}
+\doxysubsubsection{\texorpdfstring{ESIZE}{ESIZE}}
+{\footnotesize\ttfamily \#define ESIZE~EINVAL}
+
+\mbox{\Hypertarget{colenda_8h_a614ea8b89ac6fc2eef075a58ecd222eb}\label{colenda_8h_a614ea8b89ac6fc2eef075a58ecd222eb}} 
+\index{colenda.h@{colenda.h}!EWRITE@{EWRITE}}
+\index{EWRITE@{EWRITE}!colenda.h@{colenda.h}}
+\doxysubsubsection{\texorpdfstring{EWRITE}{EWRITE}}
+{\footnotesize\ttfamily \#define EWRITE~EIO}
+
+\mbox{\Hypertarget{colenda_8h_a6974d08a74da681b3957b2fead2608b8}\label{colenda_8h_a6974d08a74da681b3957b2fead2608b8}} 
+\index{colenda.h@{colenda.h}!SCREEN\_HEIGHT@{SCREEN\_HEIGHT}}
+\index{SCREEN\_HEIGHT@{SCREEN\_HEIGHT}!colenda.h@{colenda.h}}
+\doxysubsubsection{\texorpdfstring{SCREEN\_HEIGHT}{SCREEN\_HEIGHT}}
+{\footnotesize\ttfamily \#define SCREEN\+\_\+\+HEIGHT~480}
+
+\mbox{\Hypertarget{colenda_8h_a2cd109632a6dcccaa80b43561b1ab700}\label{colenda_8h_a2cd109632a6dcccaa80b43561b1ab700}} 
+\index{colenda.h@{colenda.h}!SCREEN\_WIDTH@{SCREEN\_WIDTH}}
+\index{SCREEN\_WIDTH@{SCREEN\_WIDTH}!colenda.h@{colenda.h}}
+\doxysubsubsection{\texorpdfstring{SCREEN\_WIDTH}{SCREEN\_WIDTH}}
+{\footnotesize\ttfamily \#define SCREEN\+\_\+\+WIDTH~640}
+
+\mbox{\Hypertarget{colenda_8h_aa90cac659d18e8ef6294c7ae337f6b58}\label{colenda_8h_aa90cac659d18e8ef6294c7ae337f6b58}} 
+\index{colenda.h@{colenda.h}!SUCCESS@{SUCCESS}}
+\index{SUCCESS@{SUCCESS}!colenda.h@{colenda.h}}
+\doxysubsubsection{\texorpdfstring{SUCCESS}{SUCCESS}}
+{\footnotesize\ttfamily \#define SUCCESS~0}
+
+\mbox{\Hypertarget{colenda_8h_a5f267a21ee0cf4672ebda79becd73488}\label{colenda_8h_a5f267a21ee0cf4672ebda79becd73488}} 
+\index{colenda.h@{colenda.h}!WBM@{WBM}}
+\index{WBM@{WBM}!colenda.h@{colenda.h}}
+\doxysubsubsection{\texorpdfstring{WBM}{WBM}}
+{\footnotesize\ttfamily \#define WBM~0b0010}
+
+\mbox{\Hypertarget{colenda_8h_ac52fd84155775c3bf831562344118510}\label{colenda_8h_ac52fd84155775c3bf831562344118510}} 
+\index{colenda.h@{colenda.h}!WBR@{WBR}}
+\index{WBR@{WBR}!colenda.h@{colenda.h}}
+\doxysubsubsection{\texorpdfstring{WBR}{WBR}}
+{\footnotesize\ttfamily \#define WBR~0b0000}
+
+\mbox{\Hypertarget{colenda_8h_a72054d497fcb7d5da97e7ad475b6ae0f}\label{colenda_8h_a72054d497fcb7d5da97e7ad475b6ae0f}} 
+\index{colenda.h@{colenda.h}!WSM@{WSM}}
+\index{WSM@{WSM}!colenda.h@{colenda.h}}
+\doxysubsubsection{\texorpdfstring{WSM}{WSM}}
+{\footnotesize\ttfamily \#define WSM~0b0001}
+
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{colenda_8h_aa6801541e2a9316010ea1541f2c255ae}\label{colenda_8h_aa6801541e2a9316010ea1541f2c255ae}} 
+\index{colenda.h@{colenda.h}!copytobuffer@{copytobuffer}}
+\index{copytobuffer@{copytobuffer}!colenda.h@{colenda.h}}
+\doxysubsubsection{\texorpdfstring{copytobuffer()}{copytobuffer()}}
+{\footnotesize\ttfamily int copytobuffer (\begin{DoxyParamCaption}\item[{char $\ast$}]{buffer,  }\item[{size\+\_\+t}]{size,  }\item[{uint64\+\_\+t}]{instruction }\end{DoxyParamCaption})}
+
+
+
+Copies a 64-\/bit instruction to a buffer in little-\/endian format. This function takes a 64-\/bit instruction and copies it to a buffer in little-\/endian format. It checks if the buffer has enough space to store the instruction. If the buffer is too small, it returns -\/ESIZE. Otherwise, it copies the instruction byte by byte, starting from the least significant byte (LSB) and moving to the most significant byte (MSB). 
+
+
+\begin{DoxyParams}{Parameters}
+{\em buffer} & A pointer to the buffer where the instruction will be copied. \\
+\hline
+{\em size} & The size of the buffer in bytes. \\
+\hline
+{\em instruction} & The 64-\/bit instruction to be copied to the buffer. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+SUCCESS if the instruction is copied successfully to the buffer. 
+
+-\/ESIZE if the buffer is too small to store the instruction. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{colenda_8h_ad2efa95f5418b498704ec5b6358c503d}\label{colenda_8h_ad2efa95f5418b498704ec5b6358c503d}} 
+\index{colenda.h@{colenda.h}!gpuclose@{gpuclose}}
+\index{gpuclose@{gpuclose}!colenda.h@{colenda.h}}
+\doxysubsubsection{\texorpdfstring{gpuclose()}{gpuclose()}}
+{\footnotesize\ttfamily int gpuclose (\begin{DoxyParamCaption}\item[{FILE $\ast$$\ast$}]{file }\end{DoxyParamCaption})}
+
+
+
+Closes an open file for GPU operations. This function attempts to close a file that has been previously opened for GPU operations. If the file is successfully closed, the file pointer is set to NULL. If the file cannot be closed, an error code is returned. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em file} & A pointer to a FILE pointer. The opened file will be closed and the pointer will be set to NULL. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+SUCCESS if the file is closed successfully. 
+
+-\/ECLOSE if the file cannot be closed. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{colenda_8h_ad49fcf1eeb40ab0a5f9ff76793152d88}\label{colenda_8h_ad49fcf1eeb40ab0a5f9ff76793152d88}} 
+\index{colenda.h@{colenda.h}!gpuopen@{gpuopen}}
+\index{gpuopen@{gpuopen}!colenda.h@{colenda.h}}
+\doxysubsubsection{\texorpdfstring{gpuopen()}{gpuopen()}}
+{\footnotesize\ttfamily int gpuopen (\begin{DoxyParamCaption}\item[{FILE $\ast$$\ast$}]{file,  }\item[{const char $\ast$}]{driver\+\_\+name }\end{DoxyParamCaption})}
+
+
+
+Opens a file in read/write mode for GPU operations. This function attempts to open a file with the given driver name in read/write mode. If the file is successfully opened, the file pointer is stored in the provided address. If the file cannot be opened, an error code is returned. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em file} & A pointer to a FILE pointer. The opened file will be stored in this address. \\
+\hline
+{\em driver\+\_\+name} & The name of the GPU driver file to be opened. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+SUCCESS if the file is opened successfully. 
+
+-\/EOPEN if the file cannot be opened. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{colenda_8h_a3da689af6679a00fe19934a926b9a712}\label{colenda_8h_a3da689af6679a00fe19934a926b9a712}} 
+\index{colenda.h@{colenda.h}!gpuwrite@{gpuwrite}}
+\index{gpuwrite@{gpuwrite}!colenda.h@{colenda.h}}
+\doxysubsubsection{\texorpdfstring{gpuwrite()}{gpuwrite()}}
+{\footnotesize\ttfamily int gpuwrite (\begin{DoxyParamCaption}\item[{FILE $\ast$}]{file,  }\item[{const char $\ast$}]{buffer }\end{DoxyParamCaption})}
+
+
+
+Writes data from a buffer to an open file for GPU operations. This function attempts to write data from a buffer to an open file for GPU operations. It uses the fwrite function to write the data, and then seeks back to the beginning of the file. If the number of bytes written is not equal to the BUFFER\+\_\+\+SIZE, an error code is returned. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em file} & A pointer to the FILE object representing the open file. \\
+\hline
+{\em buffer} & A pointer to the buffer containing the data to be written. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+SUCCESS if the data is written successfully. 
+
+-\/EWRITE if the number of bytes written is not equal to BUFFER\+\_\+\+SIZE. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{colenda_8h_a8ada87d1df0055fd2c542e9e52e9719c}\label{colenda_8h_a8ada87d1df0055fd2c542e9e52e9719c}} 
+\index{colenda.h@{colenda.h}!setbackground@{setbackground}}
+\index{setbackground@{setbackground}!colenda.h@{colenda.h}}
+\doxysubsubsection{\texorpdfstring{setbackground()}{setbackground()}}
+{\footnotesize\ttfamily int setbackground (\begin{DoxyParamCaption}\item[{FILE $\ast$}]{gpu,  }\item[{uint8\+\_\+t}]{red,  }\item[{uint8\+\_\+t}]{green,  }\item[{uint8\+\_\+t}]{blue }\end{DoxyParamCaption})}
+
+
+
+Defines the game\textquotesingle{}s background color. 
+
+This function generates a uint64\+\_\+t instruction that represents a command to be sent to the character driver. The instruction includes the opcode (WBR) and the RGB color values. The RGB values are packed into the instruction using bitwise operations. The instruction is then split into 8-\/bit blocks and stored in the provided buffer.
+
+
+\begin{DoxyParams}{Parameters}
+{\em gpu} & A pointer to the GPU file. \\
+\hline
+{\em red} & The red component of the color (0-\/7). \\
+\hline
+{\em green} & The green component of the color (0-\/7). \\
+\hline
+{\em blue} & The blue component of the color (0-\/7).\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+SUCCESS if the operation is successful, EINPUT if the input values are invalid, ESIZE if the buffer does not have enough space to store the instruction, EWRITE if a write error occurs in the file. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{colenda_8h_a6f56e1840276763084043ecd899d5082}\label{colenda_8h_a6f56e1840276763084043ecd899d5082}} 
+\index{colenda.h@{colenda.h}!setbackgroundblock@{setbackgroundblock}}
+\index{setbackgroundblock@{setbackgroundblock}!colenda.h@{colenda.h}}
+\doxysubsubsection{\texorpdfstring{setbackgroundblock()}{setbackgroundblock()}}
+{\footnotesize\ttfamily int setbackgroundblock (\begin{DoxyParamCaption}\item[{FILE $\ast$}]{gpu,  }\item[{uint\+\_\+fast8\+\_\+t}]{x,  }\item[{uint\+\_\+fast8\+\_\+t}]{y,  }\item[{uint\+\_\+fast8\+\_\+t}]{red,  }\item[{uint\+\_\+fast8\+\_\+t}]{green,  }\item[{uint\+\_\+fast8\+\_\+t}]{blue }\end{DoxyParamCaption})}
+
+
+
+Defines the color of a specific block in the background. 
+
+This function calculates the block address based on the provided rows and columns, and then generates a WBM instruction to write the color data to the specified address in the background memory. The function checks for valid input values and returns an error code if necessary.
+
+
+\begin{DoxyParams}{Parameters}
+{\em gpu} & A pointer to the GPU file. \\
+\hline
+{\em x} & The column index of the block (zero-\/based). \\
+\hline
+{\em y} & The row index of the block (zero-\/based). \\
+\hline
+{\em red} & The red component of the color (0-\/7). \\
+\hline
+{\em green} & The green component of the color (0-\/7). \\
+\hline
+{\em blue} & The blue component of the color (0-\/7).\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+SUCCESS if the operation is successful, EINPUT if the input values are invalid, ESIZE if the buffer does not have enough space to store the instruction, EWRITE if a write error occurs in the file. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{colenda_8h_aa89b28a8469f3d81226eb1fdd68e334a}\label{colenda_8h_aa89b28a8469f3d81226eb1fdd68e334a}} 
+\index{colenda.h@{colenda.h}!setpoligon@{setpoligon}}
+\index{setpoligon@{setpoligon}!colenda.h@{colenda.h}}
+\doxysubsubsection{\texorpdfstring{setpoligon()}{setpoligon()}}
+{\footnotesize\ttfamily int setpoligon (\begin{DoxyParamCaption}\item[{FILE $\ast$}]{gpu,  }\item[{uint\+\_\+fast8\+\_\+t}]{layer,  }\item[{uint\+\_\+fast8\+\_\+t}]{type,  }\item[{uint16\+\_\+t}]{x,  }\item[{uint16\+\_\+t}]{y,  }\item[{uint\+\_\+fast8\+\_\+t}]{red,  }\item[{uint\+\_\+fast8\+\_\+t}]{green,  }\item[{uint\+\_\+fast8\+\_\+t}]{blue,  }\item[{uint\+\_\+fast8\+\_\+t}]{size }\end{DoxyParamCaption})}
+
+
+
+Defines the parameters of a polygon in the instruction buffer. 
+
+This function generates a 64-\/bit instruction that represents a command to be sent to the character driver. The instruction includes the opcode (DP), address, type, coordinates, color, and size. The parameters are packed into the instruction using bitwise operations. The instruction is then split into 8-\/bit blocks and stored in the provided buffer.
+
+
+\begin{DoxyParams}{Parameters}
+{\em gpu} & A pointer to the GPU file. \\
+\hline
+{\em layer} & The polygon address (0-\/15). \\
+\hline
+{\em type} & The type of the polygon (0\+: square, 1\+: triangle). \\
+\hline
+{\em x} & The x-\/coordinate of the polygon (0-\/511). \\
+\hline
+{\em y} & The y-\/coordinate of the polygon (0-\/511). \\
+\hline
+{\em red} & The red component of the color (0-\/7). \\
+\hline
+{\em green} & The green component of the color (0-\/7). \\
+\hline
+{\em blue} & The blue component of the color (0-\/7). \\
+\hline
+{\em size} & The size of the polygon (0-\/15).\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+SUCCESS if the operation is successful, EINPUT if the input values are invalid, ESIZE if the buffer does not have enough space to store the instruction, EWRITE if a write error occurs in the file. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{colenda_8h_a536e442de6448efcdab384d1ab0ee5dc}\label{colenda_8h_a536e442de6448efcdab384d1ab0ee5dc}} 
+\index{colenda.h@{colenda.h}!setsprite@{setsprite}}
+\index{setsprite@{setsprite}!colenda.h@{colenda.h}}
+\doxysubsubsection{\texorpdfstring{setsprite()}{setsprite()}}
+{\footnotesize\ttfamily int setsprite (\begin{DoxyParamCaption}\item[{FILE $\ast$}]{gpu,  }\item[{uint8\+\_\+t}]{layer,  }\item[{bool}]{show,  }\item[{uint16\+\_\+t}]{x,  }\item[{uint16\+\_\+t}]{y,  }\item[{uint16\+\_\+t}]{sprite }\end{DoxyParamCaption})}
+
+
+
+Defines the sprite parameters in the instruction buffer. 
+
+This function generates a 64-\/bit instruction that represents a command to be sent to the character driver. The instruction includes the opcode (WBR), sprite register, visibility flag, coordinates, and offset. The parameters are packed into the instruction using bitwise operations. The instruction is then split into 8-\/bit blocks and stored in the provided buffer.
+
+
+\begin{DoxyParams}{Parameters}
+{\em gpu} & A pointer to the GPU file. \\
+\hline
+{\em layer} & The sprite register (0-\/31). \\
+\hline
+{\em show} & The visibility flag (0\+: hidden, 1\+: visible). \\
+\hline
+{\em x} & The x-\/coordinate of the sprite (0-\/1023). \\
+\hline
+{\em y} & The y-\/coordinate of the sprite (0-\/1023). \\
+\hline
+{\em sprite} & The sprite offset in memory (0-\/511).\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+SUCCESS if the operation is successful, EINPUT if the input values are invalid, ESIZE if the buffer does not have enough space to store the instruction, EWRITE if a write error occurs in the file. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{colenda_8h_af1096d4e41f291e9bd672a4846cf4eae}\label{colenda_8h_af1096d4e41f291e9bd672a4846cf4eae}} 
+\index{colenda.h@{colenda.h}!setspritememory@{setspritememory}}
+\index{setspritememory@{setspritememory}!colenda.h@{colenda.h}}
+\doxysubsubsection{\texorpdfstring{setspritememory()}{setspritememory()}}
+{\footnotesize\ttfamily int setspritememory (\begin{DoxyParamCaption}\item[{FILE $\ast$}]{gpu,  }\item[{uint\+\_\+fast16\+\_\+t}]{address,  }\item[{uint\+\_\+fast8\+\_\+t}]{red,  }\item[{uint\+\_\+fast8\+\_\+t}]{green,  }\item[{uint\+\_\+fast8\+\_\+t}]{blue }\end{DoxyParamCaption})}
+
+
+
+Sets the color of a specific memory location in the sprite memory. This function generates a 64-\/bit instruction to write color data to a specific memory location in the sprite memory. The instruction includes the opcode (WSM), address, and RGB color values. The RGB values are packed into the instruction using bitwise operations. The instruction is then split into 8-\/bit blocks and stored in the provided buffer. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em gpu} & A pointer to the GPU file. \\
+\hline
+{\em address} & The memory address in the sprite memory (0-\/16383). \\
+\hline
+{\em red} & The red component of the color (0-\/7). \\
+\hline
+{\em green} & The green component of the color (0-\/7). \\
+\hline
+{\em blue} & The blue component of the color (0-\/7).\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+SUCCESS if the operation is successful, EINPUT if the input values are invalid, ESIZE if the buffer does not have enough space to store the instruction, EWRITE if a write error occurs in the file. 
+\end{DoxyReturn}

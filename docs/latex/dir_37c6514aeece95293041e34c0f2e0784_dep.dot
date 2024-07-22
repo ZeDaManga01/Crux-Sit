@@ -1,0 +1,16 @@
+digraph "game" {
+  compound=true
+  node [ fontsize="10", fontname="Helvetica"];
+  edge [ labelfontsize="10", labelfontname="Helvetica"];
+  subgraph clusterdir_37c6514aeece95293041e34c0f2e0784 {
+    graph [ bgcolor="#eeeeff", pencolor="black", label="" URL="dir_37c6514aeece95293041e34c0f2e0784.html"];
+    dir_37c6514aeece95293041e34c0f2e0784 [shape=plaintext label="game"];
+  dir_a043061c37c729829c0ece3bb669aa25 [shape=box label="assets" fillcolor="white" style="filled" URL="dir_a043061c37c729829c0ece3bb669aa25.html"];
+  dir_799e54a6419ed2c37fa77fc1f6ae00fe [shape=box label="include" fillcolor="white" style="filled" color="red" URL="dir_799e54a6419ed2c37fa77fc1f6ae00fe.html"];
+  dir_fd1fc52505cfa4c86ecd59c02433df11 [shape=box label="src" fillcolor="white" style="filled" URL="dir_fd1fc52505cfa4c86ecd59c02433df11.html"];
+  dir_2107a4fbf7a40784500ed808109a1164 [shape=box label="tests" fillcolor="white" style="filled" color="red" URL="dir_2107a4fbf7a40784500ed808109a1164.html"];
+  }
+  dir_fd1fc52505cfa4c86ecd59c02433df11->dir_799e54a6419ed2c37fa77fc1f6ae00fe [headlabel="2", labeldistance=1.5 headhref="dir_000005_000002.html"];
+  dir_fd1fc52505cfa4c86ecd59c02433df11->dir_a043061c37c729829c0ece3bb669aa25 [headlabel="1", labeldistance=1.5 headhref="dir_000005_000001.html"];
+  dir_2107a4fbf7a40784500ed808109a1164->dir_799e54a6419ed2c37fa77fc1f6ae00fe [headlabel="1", labeldistance=1.5 headhref="dir_000006_000002.html"];
+}

@@ -1,0 +1,163 @@
+\hypertarget{mouse_8c}{}\doxysection{game/include/mouse/mouse.c File Reference}
+\label{mouse_8c}\index{game/include/mouse/mouse.c@{game/include/mouse/mouse.c}}
+{\ttfamily \#include \char`\"{}mouse.\+h\char`\"{}}\newline
+{\ttfamily \#include $<$math.\+h$>$}\newline
+{\ttfamily \#include $<$string.\+h$>$}\newline
+{\ttfamily \#include $<$unistd.\+h$>$}\newline
+{\ttfamily \#include $<$fcntl.\+h$>$}\newline
+{\ttfamily \#include $<$errno.\+h$>$}\newline
+Include dependency graph for mouse.\+c\+:
+% FIG 0
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{structmouse__t}{mouse\+\_\+t}} \mbox{\hyperlink{mouse_8c_a4cc4571c32f6195814ce1d16cfd19e7b}{mouseinit}} ()
+\begin{DoxyCompactList}\small\item\em Initializes a mouse structure and opens the mouse device file. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{mouse_8c_abe00130c2443fce556f15e793ce861ef}{validatemouse}} (\mbox{\hyperlink{structmouse__t}{mouse\+\_\+t}} $\ast$\mbox{\hyperlink{test_8c_a2c20eaa54498e32ea16e679ff12d5323}{mouse}})
+\begin{DoxyCompactList}\small\item\em Validates the mouse structure and its file descriptor. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{mouse_8c_a94c9794a1c89c39715d89317688cd235}{mouseclose}} (\mbox{\hyperlink{structmouse__t}{mouse\+\_\+t}} $\ast$\mbox{\hyperlink{test_8c_a2c20eaa54498e32ea16e679ff12d5323}{mouse}})
+\begin{DoxyCompactList}\small\item\em Closes the mouse device file descriptor. This function closes the file descriptor of the mouse device. It sets the file descriptor to -\/1 to indicate that the device is no longer open. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{mouse_8c_a4e3e727f14416744c71579ff5cc9aab9}{mouseread}} (\mbox{\hyperlink{structmouse__t}{mouse\+\_\+t}} $\ast$\mbox{\hyperlink{test_8c_a2c20eaa54498e32ea16e679ff12d5323}{mouse}})
+\begin{DoxyCompactList}\small\item\em Reads data from the mouse device and updates the mouse state. This function reads data from the mouse device file descriptor and updates the mouse state based on the read data. It also detects button press and release transitions. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{mouse_8c_a4a2860eb869adc1c431cba4b8acfbe39}{updatemousesensitivity}} (\mbox{\hyperlink{structmouse__t}{mouse\+\_\+t}} $\ast$\mbox{\hyperlink{test_8c_a2c20eaa54498e32ea16e679ff12d5323}{mouse}}, int mx, int my)
+\begin{DoxyCompactList}\small\item\em Adjusts the sensitivity of the mouse movement. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{mouse_8c_a94c9794a1c89c39715d89317688cd235}\label{mouse_8c_a94c9794a1c89c39715d89317688cd235}} 
+\index{mouse.c@{mouse.c}!mouseclose@{mouseclose}}
+\index{mouseclose@{mouseclose}!mouse.c@{mouse.c}}
+\doxysubsubsection{\texorpdfstring{mouseclose()}{mouseclose()}}
+{\footnotesize\ttfamily void mouseclose (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structmouse__t}{mouse\+\_\+t}} $\ast$}]{mouse }\end{DoxyParamCaption})}
+
+
+
+Closes the mouse device file descriptor. This function closes the file descriptor of the mouse device. It sets the file descriptor to -\/1 to indicate that the device is no longer open. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em mouse} & A pointer to the mouse structure containing the file descriptor. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+void 
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+This function does not return any value. 
+
+The function checks if the file descriptor is valid before closing it. 
+\end{DoxyNote}
+\mbox{\Hypertarget{mouse_8c_a4cc4571c32f6195814ce1d16cfd19e7b}\label{mouse_8c_a4cc4571c32f6195814ce1d16cfd19e7b}} 
+\index{mouse.c@{mouse.c}!mouseinit@{mouseinit}}
+\index{mouseinit@{mouseinit}!mouse.c@{mouse.c}}
+\doxysubsubsection{\texorpdfstring{mouseinit()}{mouseinit()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structmouse__t}{mouse\+\_\+t}} mouseinit (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+
+
+Initializes a mouse structure and opens the mouse device file. 
+
+This function initializes a mouse structure and opens the mouse device file. It sets the file descriptor of the mouse structure to -\/1 if an error occurs during the file opening process.
+
+\begin{DoxyReturn}{Returns}
+A \mbox{\hyperlink{structmouse__t}{mouse\+\_\+t}} structure containing the initialized values. 
+\end{DoxyReturn}
+
+\begin{DoxyRetVals}{Return values}
+{\em A} & \mbox{\hyperlink{structmouse__t}{mouse\+\_\+t}} structure with the file descriptor set to -\/1 if an error occurs.\\
+\hline
+\end{DoxyRetVals}
+\begin{DoxyNote}{Note}
+The mouse device file is opened in non-\/blocking mode. 
+
+The mouse structure is initialized with default values. 
+\end{DoxyNote}
+\mbox{\Hypertarget{mouse_8c_a4e3e727f14416744c71579ff5cc9aab9}\label{mouse_8c_a4e3e727f14416744c71579ff5cc9aab9}} 
+\index{mouse.c@{mouse.c}!mouseread@{mouseread}}
+\index{mouseread@{mouseread}!mouse.c@{mouse.c}}
+\doxysubsubsection{\texorpdfstring{mouseread()}{mouseread()}}
+{\footnotesize\ttfamily int mouseread (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structmouse__t}{mouse\+\_\+t}} $\ast$}]{mouse }\end{DoxyParamCaption})}
+
+
+
+Reads data from the mouse device and updates the mouse state. This function reads data from the mouse device file descriptor and updates the mouse state based on the read data. It also detects button press and release transitions. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em mouse} & A pointer to the mouse structure containing the file descriptor and other mouse state variables. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The number of bytes read from the mouse device. If an error occurs, it returns a negative error code. 
+\end{DoxyReturn}
+
+\begin{DoxyRetVals}{Return values}
+{\em -\/\+EINVAL} & If the mouse pointer is NULL. \\
+\hline
+{\em -\/\+EBADF} & If the mouse file descriptor is invalid. \\
+\hline
+\end{DoxyRetVals}
+\begin{DoxyNote}{Note}
+The function updates the mouse state variables in the mouse structure. 
+\end{DoxyNote}
+\mbox{\Hypertarget{mouse_8c_a4a2860eb869adc1c431cba4b8acfbe39}\label{mouse_8c_a4a2860eb869adc1c431cba4b8acfbe39}} 
+\index{mouse.c@{mouse.c}!updatemousesensitivity@{updatemousesensitivity}}
+\index{updatemousesensitivity@{updatemousesensitivity}!mouse.c@{mouse.c}}
+\doxysubsubsection{\texorpdfstring{updatemousesensitivity()}{updatemousesensitivity()}}
+{\footnotesize\ttfamily void updatemousesensitivity (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structmouse__t}{mouse\+\_\+t}} $\ast$}]{mouse,  }\item[{int}]{mx,  }\item[{int}]{my }\end{DoxyParamCaption})}
+
+
+
+Adjusts the sensitivity of the mouse movement. 
+
+This function adjusts the sensitivity of the mouse movement by scaling the horizontal and vertical movement offsets based on the given sensitivity factors. The new movement offsets are calculated by multiplying the original offsets with the sensitivity factors and rounding them to the nearest integer.
+
+
+\begin{DoxyParams}{Parameters}
+{\em mouse} & A pointer to the mouse structure containing the movement offsets. \\
+\hline
+{\em mx} & The horizontal sensitivity factor. A value greater than 1 increases the sensitivity. \\
+\hline
+{\em my} & The vertical sensitivity factor. A value greater than 1 increases the sensitivity.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+void
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+The function assumes that the mouse structure is already initialized and contains valid movement offsets. If the mouse structure is not initialized or the file descriptor is invalid, it will do nothing. 
+
+The function updates the movement offsets in the mouse structure. 
+\end{DoxyNote}
+\mbox{\Hypertarget{mouse_8c_abe00130c2443fce556f15e793ce861ef}\label{mouse_8c_abe00130c2443fce556f15e793ce861ef}} 
+\index{mouse.c@{mouse.c}!validatemouse@{validatemouse}}
+\index{validatemouse@{validatemouse}!mouse.c@{mouse.c}}
+\doxysubsubsection{\texorpdfstring{validatemouse()}{validatemouse()}}
+{\footnotesize\ttfamily int validatemouse (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structmouse__t}{mouse\+\_\+t}} $\ast$}]{mouse }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Validates the mouse structure and its file descriptor. 
+
+This function checks if the mouse structure and its file descriptor are valid. It returns an error code if the structure is not initialized or if the file descriptor is invalid.
+
+
+\begin{DoxyParams}{Parameters}
+{\em mouse} & A pointer to the mouse structure to be validated.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+An integer representing the result of the validation. 
+\end{DoxyReturn}
+
+\begin{DoxyRetVals}{Return values}
+{\em 0} & The mouse structure and its file descriptor are valid. \\
+\hline
+{\em -\/\+EINVAL} & The mouse structure is not initialized. \\
+\hline
+{\em -\/\+EBADF} & The mouse file descriptor is invalid.\\
+\hline
+\end{DoxyRetVals}
+\begin{DoxyNote}{Note}
+This function does not modify the mouse structure or its file descriptor. 
+\end{DoxyNote}

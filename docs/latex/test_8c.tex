@@ -1,0 +1,69 @@
+\hypertarget{test_8c}{}\doxysection{game/tests/mouse/test.c File Reference}
+\label{test_8c}\index{game/tests/mouse/test.c@{game/tests/mouse/test.c}}
+{\ttfamily \#include $<$mouse.\+h$>$}\newline
+{\ttfamily \#include $<$stdio.\+h$>$}\newline
+{\ttfamily \#include $<$stdlib.\+h$>$}\newline
+{\ttfamily \#include $<$unistd.\+h$>$}\newline
+{\ttfamily \#include $<$pthread.\+h$>$}\newline
+Include dependency graph for test.\+c\+:
+% FIG 0
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void $\ast$ \mbox{\hyperlink{test_8c_a4082fcc40092b0bb7659698d81b9e2b1}{mouse\+\_\+thread\+\_\+func}} (void $\ast$arg)
+\item 
+void $\ast$ \mbox{\hyperlink{test_8c_adf87b5928504f14ab31302b32023cd0f}{test\+\_\+thread\+\_\+func}} (void $\ast$arg)
+\item 
+int \mbox{\hyperlink{test_8c_a840291bc02cba5474a4cb46a9b9566fe}{main}} (void)
+\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+volatile bool \mbox{\hyperlink{test_8c_a7c10027ca174fc9d529796f04aca6bd4}{running}} = true
+\item 
+pthread\+\_\+mutex\+\_\+t \mbox{\hyperlink{test_8c_a1137af5e769a71b09a66bbe5500a5b07}{mouse\+\_\+lock}} = PTHREAD\+\_\+\+MUTEX\+\_\+\+INITIALIZER
+\item 
+\mbox{\hyperlink{structmouse__t}{mouse\+\_\+t}} \mbox{\hyperlink{test_8c_a2c20eaa54498e32ea16e679ff12d5323}{mouse}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{test_8c_a840291bc02cba5474a4cb46a9b9566fe}\label{test_8c_a840291bc02cba5474a4cb46a9b9566fe}} 
+\index{test.c@{test.c}!main@{main}}
+\index{main@{main}!test.c@{test.c}}
+\doxysubsubsection{\texorpdfstring{main()}{main()}}
+{\footnotesize\ttfamily int main (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{test_8c_a4082fcc40092b0bb7659698d81b9e2b1}\label{test_8c_a4082fcc40092b0bb7659698d81b9e2b1}} 
+\index{test.c@{test.c}!mouse\_thread\_func@{mouse\_thread\_func}}
+\index{mouse\_thread\_func@{mouse\_thread\_func}!test.c@{test.c}}
+\doxysubsubsection{\texorpdfstring{mouse\_thread\_func()}{mouse\_thread\_func()}}
+{\footnotesize\ttfamily void$\ast$ mouse\+\_\+thread\+\_\+func (\begin{DoxyParamCaption}\item[{void $\ast$}]{arg }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{test_8c_adf87b5928504f14ab31302b32023cd0f}\label{test_8c_adf87b5928504f14ab31302b32023cd0f}} 
+\index{test.c@{test.c}!test\_thread\_func@{test\_thread\_func}}
+\index{test\_thread\_func@{test\_thread\_func}!test.c@{test.c}}
+\doxysubsubsection{\texorpdfstring{test\_thread\_func()}{test\_thread\_func()}}
+{\footnotesize\ttfamily void $\ast$ test\+\_\+thread\+\_\+func (\begin{DoxyParamCaption}\item[{void $\ast$}]{arg }\end{DoxyParamCaption})}
+
+
+
+\doxysubsection{Variable Documentation}
+\mbox{\Hypertarget{test_8c_a2c20eaa54498e32ea16e679ff12d5323}\label{test_8c_a2c20eaa54498e32ea16e679ff12d5323}} 
+\index{test.c@{test.c}!mouse@{mouse}}
+\index{mouse@{mouse}!test.c@{test.c}}
+\doxysubsubsection{\texorpdfstring{mouse}{mouse}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structmouse__t}{mouse\+\_\+t}} mouse}
+
+\mbox{\Hypertarget{test_8c_a1137af5e769a71b09a66bbe5500a5b07}\label{test_8c_a1137af5e769a71b09a66bbe5500a5b07}} 
+\index{test.c@{test.c}!mouse\_lock@{mouse\_lock}}
+\index{mouse\_lock@{mouse\_lock}!test.c@{test.c}}
+\doxysubsubsection{\texorpdfstring{mouse\_lock}{mouse\_lock}}
+{\footnotesize\ttfamily pthread\+\_\+mutex\+\_\+t mouse\+\_\+lock = PTHREAD\+\_\+\+MUTEX\+\_\+\+INITIALIZER}
+
+\mbox{\Hypertarget{test_8c_a7c10027ca174fc9d529796f04aca6bd4}\label{test_8c_a7c10027ca174fc9d529796f04aca6bd4}} 
+\index{test.c@{test.c}!running@{running}}
+\index{running@{running}!test.c@{test.c}}
+\doxysubsubsection{\texorpdfstring{running}{running}}
+{\footnotesize\ttfamily volatile bool running = true}
+

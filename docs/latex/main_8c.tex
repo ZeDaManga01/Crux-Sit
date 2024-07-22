@@ -1,0 +1,401 @@
+\hypertarget{main_8c}{}\doxysection{game/src/main.c File Reference}
+\label{main_8c}\index{game/src/main.c@{game/src/main.c}}
+{\ttfamily \#include $<$stdio.\+h$>$}\newline
+{\ttfamily \#include $<$stdlib.\+h$>$}\newline
+{\ttfamily \#include $<$stdbool.\+h$>$}\newline
+{\ttfamily \#include $<$unistd.\+h$>$}\newline
+{\ttfamily \#include $<$time.\+h$>$}\newline
+{\ttfamily \#include $<$linux/time.\+h$>$}\newline
+{\ttfamily \#include $<$pthread.\+h$>$}\newline
+{\ttfamily \#include \char`\"{}../include/mouse/mouse.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}../include/colenda/colenda.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}night.\+h\char`\"{}}\newline
+Include dependency graph for main.\+c\+:
+% FIG 0
+\doxysubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structrgb__t}{rgb\+\_\+t}}
+\item 
+struct \mbox{\hyperlink{structrgba__t}{rgba\+\_\+t}}
+\item 
+struct \mbox{\hyperlink{structtimetracker__t}{timetracker\+\_\+t}}
+\item 
+struct \mbox{\hyperlink{structrectangle__t}{rectangle\+\_\+t}}
+\item 
+struct \mbox{\hyperlink{structposition__t}{position\+\_\+t}}
+\item 
+struct \mbox{\hyperlink{structvelocity__t}{velocity\+\_\+t}}
+\item 
+struct \mbox{\hyperlink{structacceleration__t}{acceleration\+\_\+t}}
+\item 
+struct \mbox{\hyperlink{structentity__t}{entity\+\_\+t}}
+\item 
+struct \mbox{\hyperlink{structcursor__t}{cursor\+\_\+t}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{main_8c_a0b7e155f796ed5e7b49b0f44867135ee}{MAX\+\_\+\+ENTITIES}}~20
+\item 
+\#define \mbox{\hyperlink{main_8c_a3607bbdba6a38e0429902920ccf7b234}{MAX\+\_\+\+BULLETTYPES}}~3
+\item 
+\#define \mbox{\hyperlink{main_8c_aa88983cdaf4f3c6d69aee4c57066c989}{BULLET\+\_\+\+OFFSET}}~5
+\item 
+\#define \mbox{\hyperlink{main_8c_a72d5d55cf148de7297856b93829c296d}{ZOMBIE}}~0
+\item 
+\#define \mbox{\hyperlink{main_8c_abe83f2e99d2c596980958a240d93d23a}{WEREWOLF}}~1
+\item 
+\#define \mbox{\hyperlink{main_8c_a18aa359f7edefef224b3b760271f7649}{VAMPIRE}}~2
+\item 
+\#define \mbox{\hyperlink{main_8c_a36208ac54c7d1e8ba594aaf897301e73}{NORMAL\+\_\+\+BULLET}}~0
+\item 
+\#define \mbox{\hyperlink{main_8c_aef271aeaa32c1e3be591004174e8ab6c}{SILVER\+\_\+\+BULLET}}~1
+\item 
+\#define \mbox{\hyperlink{main_8c_a9a3b5653457362c6a789bc6e657b85e2}{GARLIC\+\_\+\+BULLET}}~2
+\item 
+\#define \mbox{\hyperlink{main_8c_a317406a4cca92b12960111936a83b569}{ENTITY\+\_\+\+SPRITE\+\_\+\+LAYER\+\_\+\+OFFSET}}~4
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{structrgb__t}{rgb\+\_\+t}} \mbox{\hyperlink{main_8c_ab0de14c9d2d253664f953881e9a06010}{hextorgb}} (unsigned int hex)
+\item 
+\mbox{\hyperlink{structrgba__t}{rgba\+\_\+t}} \mbox{\hyperlink{main_8c_a34bfbaa97f54ff81fa42b2a7b59bb183}{hextorgba}} (unsigned int hex)
+\item 
+void \mbox{\hyperlink{main_8c_a632ee47f8cb453f6516405fefbd56ce4}{normalizergb}} (\mbox{\hyperlink{structrgb__t}{rgb\+\_\+t}} $\ast$color)
+\item 
+void \mbox{\hyperlink{main_8c_a3e2909d74bdeb6f1888a1f6f71168913}{normalizergba}} (\mbox{\hyperlink{structrgba__t}{rgba\+\_\+t}} $\ast$color)
+\item 
+double \mbox{\hyperlink{main_8c_a1e327b035b2c95cf6ad856e9a518393e}{gettime}} ()
+\item 
+void \mbox{\hyperlink{main_8c_ac1ee3f9886f7c472f42bdb46e37c8352}{updatetime}} (\mbox{\hyperlink{structtimetracker__t}{timetracker\+\_\+t}} $\ast$timer)
+\item 
+void \mbox{\hyperlink{main_8c_af28c6f3647660695002833f1b271a2fb}{updateposition}} (double $\ast$x, double $\ast$y, double vx, double vy, double elapsed\+Time)
+\item 
+void \mbox{\hyperlink{main_8c_ad13638fa2fe71682da3c1fe217647519}{updatevelocity}} (double $\ast$vx, double $\ast$vy, double ax, double ay, double elapsed\+Time)
+\item 
+void \mbox{\hyperlink{main_8c_a4919d7f316408bc74ab7ca35f3557869}{updatecursor}} (\mbox{\hyperlink{structcursor__t}{cursor\+\_\+t}} $\ast$\mbox{\hyperlink{main_8c_ab254f5b3929dd17a37def4de0622f3e9}{cursor}}, \mbox{\hyperlink{structmouse__t}{mouse\+\_\+t}} $\ast$\mbox{\hyperlink{test_8c_a2c20eaa54498e32ea16e679ff12d5323}{mouse}})
+\item 
+int \mbox{\hyperlink{main_8c_a684be52a7dac79ac50dcc3a02077975c}{checkcollision}} (int x1, int y1, int x2, int y2, int size\+\_\+x1, int size\+\_\+y1, int size\+\_\+x2, int size\+\_\+y2)
+\item 
+int \mbox{\hyperlink{main_8c_ae06bd8a4584174cc56b5c38793a2ccc0}{createentity}} (\mbox{\hyperlink{structentity__t}{entity\+\_\+t}} $\ast$entities, bool $\ast$is\+\_\+entity\+\_\+in\+\_\+slot, \mbox{\hyperlink{structentity__t}{entity\+\_\+t}} mob, size\+\_\+t size)
+\item 
+void \mbox{\hyperlink{main_8c_a54b2d78caa1998a88d0f1c9e228937f6}{deleteentity}} (bool $\ast$is\+\_\+entity\+\_\+in\+\_\+slot, size\+\_\+t index, size\+\_\+t size)
+\item 
+void \mbox{\hyperlink{main_8c_a4c320f65692f5cc3c05df4382d9fced7}{changebullettype}} (int $\ast$\mbox{\hyperlink{main_8c_a797be004cb6f126cae21075cc7136bc9}{bullet}})
+\item 
+void \mbox{\hyperlink{main_8c_a271b298fa9ea8b13a62a1836f52f5844}{clearbackground}} (FILE $\ast$\mbox{\hyperlink{main_8c_af540bcd0cdebabad789db751ac6e3345}{gpu}})
+\item 
+void \mbox{\hyperlink{main_8c_aec6af351949aab12c637492e1332bbcf}{fillbackground}} (FILE $\ast$\mbox{\hyperlink{main_8c_af540bcd0cdebabad789db751ac6e3345}{gpu}}, const uint32\+\_\+t $\ast$data, size\+\_\+t x, size\+\_\+t y)
+\item 
+void \mbox{\hyperlink{main_8c_a7c79957acf29ac13a5e6210137e704f8}{clearsprites}} (FILE $\ast$\mbox{\hyperlink{main_8c_af540bcd0cdebabad789db751ac6e3345}{gpu}})
+\item 
+void \mbox{\hyperlink{main_8c_ae2aa91b64e38359c90ade12dc65857cc}{initializeentitylist}} (bool $\ast$is\+\_\+entity\+\_\+in\+\_\+slot, size\+\_\+t size)
+\item 
+void \mbox{\hyperlink{main_8c_a018ae9d690e58247df36fbbc56295aa5}{initializecursor}} (\mbox{\hyperlink{structcursor__t}{cursor\+\_\+t}} $\ast$\mbox{\hyperlink{main_8c_ab254f5b3929dd17a37def4de0622f3e9}{cursor}})
+\item 
+void \mbox{\hyperlink{main_8c_a64df227205120c5471faf9738af683bb}{updatemouseandcursor}} (\mbox{\hyperlink{structmouse__t}{mouse\+\_\+t}} $\ast$\mbox{\hyperlink{test_8c_a2c20eaa54498e32ea16e679ff12d5323}{mouse}}, \mbox{\hyperlink{structcursor__t}{cursor\+\_\+t}} $\ast$\mbox{\hyperlink{main_8c_ab254f5b3929dd17a37def4de0622f3e9}{cursor}})
+\item 
+void \mbox{\hyperlink{main_8c_afd2cfb8358a89ace14c3eb29b9b0faf8}{createnewentity}} (\mbox{\hyperlink{structentity__t}{entity\+\_\+t}} $\ast$entities, bool $\ast$is\+\_\+entity\+\_\+in\+\_\+slot, double $\ast$count, double spawn\+Entitytime, double elapsed\+\_\+time)
+\item 
+void \mbox{\hyperlink{main_8c_a8ecdbcb73e66951fe0b459ef66d6a8ac}{updateentities}} (\mbox{\hyperlink{structentity__t}{entity\+\_\+t}} $\ast$entities, bool $\ast$is\+\_\+entity\+\_\+in\+\_\+slot, \mbox{\hyperlink{structcursor__t}{cursor\+\_\+t}} $\ast$\mbox{\hyperlink{main_8c_ab254f5b3929dd17a37def4de0622f3e9}{cursor}}, bool has\+\_\+shot, FILE $\ast$\mbox{\hyperlink{main_8c_af540bcd0cdebabad789db751ac6e3345}{gpu}}, bool $\ast$collision, int \mbox{\hyperlink{main_8c_a797be004cb6f126cae21075cc7136bc9}{bullet}}, \mbox{\hyperlink{structtimetracker__t}{timetracker\+\_\+t}} $\ast$timer)
+\item 
+void \mbox{\hyperlink{main_8c_a97dd133c6618228b057daedb482f6cda}{renderhudsprites}} (FILE $\ast$\mbox{\hyperlink{main_8c_af540bcd0cdebabad789db751ac6e3345}{gpu}}, \mbox{\hyperlink{structcursor__t}{cursor\+\_\+t}} $\ast$\mbox{\hyperlink{main_8c_ab254f5b3929dd17a37def4de0622f3e9}{cursor}}, bool collision, int \mbox{\hyperlink{main_8c_a797be004cb6f126cae21075cc7136bc9}{bullet}})
+\item 
+void \mbox{\hyperlink{main_8c_abceb679060d4b8ad5abf044235082602}{handleuserinput}} (\mbox{\hyperlink{structmouse__t}{mouse\+\_\+t}} $\ast$\mbox{\hyperlink{test_8c_a2c20eaa54498e32ea16e679ff12d5323}{mouse}}, int $\ast$\mbox{\hyperlink{main_8c_a797be004cb6f126cae21075cc7136bc9}{bullet}}, volatile bool $\ast$\mbox{\hyperlink{test_8c_a7c10027ca174fc9d529796f04aca6bd4}{running}})
+\item 
+void $\ast$ \mbox{\hyperlink{main_8c_a48e612918e6209759da80de7bf70ae11}{mouse\+\_\+thread\+\_\+func}} (void $\ast$arg)
+\item 
+void $\ast$ \mbox{\hyperlink{main_8c_a90d14174e3d38c0cde7dd5462433d3fe}{game\+\_\+thread\+\_\+func}} (void $\ast$arg)
+\item 
+int \mbox{\hyperlink{main_8c_a840291bc02cba5474a4cb46a9b9566fe}{main}} (void)
+\begin{DoxyCompactList}\small\item\em Main function of the game. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+volatile bool \mbox{\hyperlink{main_8c_a7c10027ca174fc9d529796f04aca6bd4}{running}} = true
+\item 
+pthread\+\_\+mutex\+\_\+t \mbox{\hyperlink{main_8c_a1137af5e769a71b09a66bbe5500a5b07}{mouse\+\_\+lock}} = PTHREAD\+\_\+\+MUTEX\+\_\+\+INITIALIZER
+\item 
+\mbox{\hyperlink{structmouse__t}{mouse\+\_\+t}} \mbox{\hyperlink{main_8c_a2c20eaa54498e32ea16e679ff12d5323}{mouse}}
+\item 
+\mbox{\hyperlink{structcursor__t}{cursor\+\_\+t}} \mbox{\hyperlink{main_8c_ab254f5b3929dd17a37def4de0622f3e9}{cursor}}
+\item 
+FILE $\ast$ \mbox{\hyperlink{main_8c_af540bcd0cdebabad789db751ac6e3345}{gpu}}
+\item 
+int \mbox{\hyperlink{main_8c_a797be004cb6f126cae21075cc7136bc9}{bullet}} = 0
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Macro Definition Documentation}
+\mbox{\Hypertarget{main_8c_aa88983cdaf4f3c6d69aee4c57066c989}\label{main_8c_aa88983cdaf4f3c6d69aee4c57066c989}} 
+\index{main.c@{main.c}!BULLET\_OFFSET@{BULLET\_OFFSET}}
+\index{BULLET\_OFFSET@{BULLET\_OFFSET}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{BULLET\_OFFSET}{BULLET\_OFFSET}}
+{\footnotesize\ttfamily \#define BULLET\+\_\+\+OFFSET~5}
+
+\mbox{\Hypertarget{main_8c_a317406a4cca92b12960111936a83b569}\label{main_8c_a317406a4cca92b12960111936a83b569}} 
+\index{main.c@{main.c}!ENTITY\_SPRITE\_LAYER\_OFFSET@{ENTITY\_SPRITE\_LAYER\_OFFSET}}
+\index{ENTITY\_SPRITE\_LAYER\_OFFSET@{ENTITY\_SPRITE\_LAYER\_OFFSET}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{ENTITY\_SPRITE\_LAYER\_OFFSET}{ENTITY\_SPRITE\_LAYER\_OFFSET}}
+{\footnotesize\ttfamily \#define ENTITY\+\_\+\+SPRITE\+\_\+\+LAYER\+\_\+\+OFFSET~4}
+
+\mbox{\Hypertarget{main_8c_a9a3b5653457362c6a789bc6e657b85e2}\label{main_8c_a9a3b5653457362c6a789bc6e657b85e2}} 
+\index{main.c@{main.c}!GARLIC\_BULLET@{GARLIC\_BULLET}}
+\index{GARLIC\_BULLET@{GARLIC\_BULLET}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{GARLIC\_BULLET}{GARLIC\_BULLET}}
+{\footnotesize\ttfamily \#define GARLIC\+\_\+\+BULLET~2}
+
+\mbox{\Hypertarget{main_8c_a3607bbdba6a38e0429902920ccf7b234}\label{main_8c_a3607bbdba6a38e0429902920ccf7b234}} 
+\index{main.c@{main.c}!MAX\_BULLETTYPES@{MAX\_BULLETTYPES}}
+\index{MAX\_BULLETTYPES@{MAX\_BULLETTYPES}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{MAX\_BULLETTYPES}{MAX\_BULLETTYPES}}
+{\footnotesize\ttfamily \#define MAX\+\_\+\+BULLETTYPES~3}
+
+\mbox{\Hypertarget{main_8c_a0b7e155f796ed5e7b49b0f44867135ee}\label{main_8c_a0b7e155f796ed5e7b49b0f44867135ee}} 
+\index{main.c@{main.c}!MAX\_ENTITIES@{MAX\_ENTITIES}}
+\index{MAX\_ENTITIES@{MAX\_ENTITIES}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{MAX\_ENTITIES}{MAX\_ENTITIES}}
+{\footnotesize\ttfamily \#define MAX\+\_\+\+ENTITIES~20}
+
+\mbox{\Hypertarget{main_8c_a36208ac54c7d1e8ba594aaf897301e73}\label{main_8c_a36208ac54c7d1e8ba594aaf897301e73}} 
+\index{main.c@{main.c}!NORMAL\_BULLET@{NORMAL\_BULLET}}
+\index{NORMAL\_BULLET@{NORMAL\_BULLET}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{NORMAL\_BULLET}{NORMAL\_BULLET}}
+{\footnotesize\ttfamily \#define NORMAL\+\_\+\+BULLET~0}
+
+\mbox{\Hypertarget{main_8c_aef271aeaa32c1e3be591004174e8ab6c}\label{main_8c_aef271aeaa32c1e3be591004174e8ab6c}} 
+\index{main.c@{main.c}!SILVER\_BULLET@{SILVER\_BULLET}}
+\index{SILVER\_BULLET@{SILVER\_BULLET}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{SILVER\_BULLET}{SILVER\_BULLET}}
+{\footnotesize\ttfamily \#define SILVER\+\_\+\+BULLET~1}
+
+\mbox{\Hypertarget{main_8c_a18aa359f7edefef224b3b760271f7649}\label{main_8c_a18aa359f7edefef224b3b760271f7649}} 
+\index{main.c@{main.c}!VAMPIRE@{VAMPIRE}}
+\index{VAMPIRE@{VAMPIRE}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{VAMPIRE}{VAMPIRE}}
+{\footnotesize\ttfamily \#define VAMPIRE~2}
+
+\mbox{\Hypertarget{main_8c_abe83f2e99d2c596980958a240d93d23a}\label{main_8c_abe83f2e99d2c596980958a240d93d23a}} 
+\index{main.c@{main.c}!WEREWOLF@{WEREWOLF}}
+\index{WEREWOLF@{WEREWOLF}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{WEREWOLF}{WEREWOLF}}
+{\footnotesize\ttfamily \#define WEREWOLF~1}
+
+\mbox{\Hypertarget{main_8c_a72d5d55cf148de7297856b93829c296d}\label{main_8c_a72d5d55cf148de7297856b93829c296d}} 
+\index{main.c@{main.c}!ZOMBIE@{ZOMBIE}}
+\index{ZOMBIE@{ZOMBIE}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{ZOMBIE}{ZOMBIE}}
+{\footnotesize\ttfamily \#define ZOMBIE~0}
+
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{main_8c_a4c320f65692f5cc3c05df4382d9fced7}\label{main_8c_a4c320f65692f5cc3c05df4382d9fced7}} 
+\index{main.c@{main.c}!changebullettype@{changebullettype}}
+\index{changebullettype@{changebullettype}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{changebullettype()}{changebullettype()}}
+{\footnotesize\ttfamily void changebullettype (\begin{DoxyParamCaption}\item[{int $\ast$}]{bullet }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{main_8c_a684be52a7dac79ac50dcc3a02077975c}\label{main_8c_a684be52a7dac79ac50dcc3a02077975c}} 
+\index{main.c@{main.c}!checkcollision@{checkcollision}}
+\index{checkcollision@{checkcollision}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{checkcollision()}{checkcollision()}}
+{\footnotesize\ttfamily int checkcollision (\begin{DoxyParamCaption}\item[{int}]{x1,  }\item[{int}]{y1,  }\item[{int}]{x2,  }\item[{int}]{y2,  }\item[{int}]{size\+\_\+x1,  }\item[{int}]{size\+\_\+y1,  }\item[{int}]{size\+\_\+x2,  }\item[{int}]{size\+\_\+y2 }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{main_8c_a271b298fa9ea8b13a62a1836f52f5844}\label{main_8c_a271b298fa9ea8b13a62a1836f52f5844}} 
+\index{main.c@{main.c}!clearbackground@{clearbackground}}
+\index{clearbackground@{clearbackground}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{clearbackground()}{clearbackground()}}
+{\footnotesize\ttfamily void clearbackground (\begin{DoxyParamCaption}\item[{FILE $\ast$}]{gpu }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{main_8c_a7c79957acf29ac13a5e6210137e704f8}\label{main_8c_a7c79957acf29ac13a5e6210137e704f8}} 
+\index{main.c@{main.c}!clearsprites@{clearsprites}}
+\index{clearsprites@{clearsprites}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{clearsprites()}{clearsprites()}}
+{\footnotesize\ttfamily void clearsprites (\begin{DoxyParamCaption}\item[{FILE $\ast$}]{gpu }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{main_8c_ae06bd8a4584174cc56b5c38793a2ccc0}\label{main_8c_ae06bd8a4584174cc56b5c38793a2ccc0}} 
+\index{main.c@{main.c}!createentity@{createentity}}
+\index{createentity@{createentity}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{createentity()}{createentity()}}
+{\footnotesize\ttfamily int createentity (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structentity__t}{entity\+\_\+t}} $\ast$}]{entities,  }\item[{bool $\ast$}]{is\+\_\+entity\+\_\+in\+\_\+slot,  }\item[{\mbox{\hyperlink{structentity__t}{entity\+\_\+t}}}]{mob,  }\item[{size\+\_\+t}]{size }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{main_8c_afd2cfb8358a89ace14c3eb29b9b0faf8}\label{main_8c_afd2cfb8358a89ace14c3eb29b9b0faf8}} 
+\index{main.c@{main.c}!createnewentity@{createnewentity}}
+\index{createnewentity@{createnewentity}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{createnewentity()}{createnewentity()}}
+{\footnotesize\ttfamily void createnewentity (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structentity__t}{entity\+\_\+t}} $\ast$}]{entities,  }\item[{bool $\ast$}]{is\+\_\+entity\+\_\+in\+\_\+slot,  }\item[{double $\ast$}]{count,  }\item[{double}]{spawn\+Entitytime,  }\item[{double}]{elapsed\+\_\+time }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{main_8c_a54b2d78caa1998a88d0f1c9e228937f6}\label{main_8c_a54b2d78caa1998a88d0f1c9e228937f6}} 
+\index{main.c@{main.c}!deleteentity@{deleteentity}}
+\index{deleteentity@{deleteentity}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{deleteentity()}{deleteentity()}}
+{\footnotesize\ttfamily void deleteentity (\begin{DoxyParamCaption}\item[{bool $\ast$}]{is\+\_\+entity\+\_\+in\+\_\+slot,  }\item[{size\+\_\+t}]{index,  }\item[{size\+\_\+t}]{size }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{main_8c_aec6af351949aab12c637492e1332bbcf}\label{main_8c_aec6af351949aab12c637492e1332bbcf}} 
+\index{main.c@{main.c}!fillbackground@{fillbackground}}
+\index{fillbackground@{fillbackground}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{fillbackground()}{fillbackground()}}
+{\footnotesize\ttfamily void fillbackground (\begin{DoxyParamCaption}\item[{FILE $\ast$}]{gpu,  }\item[{const uint32\+\_\+t $\ast$}]{data,  }\item[{size\+\_\+t}]{x,  }\item[{size\+\_\+t}]{y }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{main_8c_a90d14174e3d38c0cde7dd5462433d3fe}\label{main_8c_a90d14174e3d38c0cde7dd5462433d3fe}} 
+\index{main.c@{main.c}!game\_thread\_func@{game\_thread\_func}}
+\index{game\_thread\_func@{game\_thread\_func}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{game\_thread\_func()}{game\_thread\_func()}}
+{\footnotesize\ttfamily void $\ast$ game\+\_\+thread\+\_\+func (\begin{DoxyParamCaption}\item[{void $\ast$}]{arg }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{main_8c_a1e327b035b2c95cf6ad856e9a518393e}\label{main_8c_a1e327b035b2c95cf6ad856e9a518393e}} 
+\index{main.c@{main.c}!gettime@{gettime}}
+\index{gettime@{gettime}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{gettime()}{gettime()}}
+{\footnotesize\ttfamily double gettime (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{main_8c_abceb679060d4b8ad5abf044235082602}\label{main_8c_abceb679060d4b8ad5abf044235082602}} 
+\index{main.c@{main.c}!handleuserinput@{handleuserinput}}
+\index{handleuserinput@{handleuserinput}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{handleuserinput()}{handleuserinput()}}
+{\footnotesize\ttfamily void handleuserinput (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structmouse__t}{mouse\+\_\+t}} $\ast$}]{mouse,  }\item[{int $\ast$}]{bullet,  }\item[{volatile bool $\ast$}]{running }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{main_8c_ab0de14c9d2d253664f953881e9a06010}\label{main_8c_ab0de14c9d2d253664f953881e9a06010}} 
+\index{main.c@{main.c}!hextorgb@{hextorgb}}
+\index{hextorgb@{hextorgb}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{hextorgb()}{hextorgb()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structrgb__t}{rgb\+\_\+t}} hextorgb (\begin{DoxyParamCaption}\item[{unsigned int}]{hex }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{main_8c_a34bfbaa97f54ff81fa42b2a7b59bb183}\label{main_8c_a34bfbaa97f54ff81fa42b2a7b59bb183}} 
+\index{main.c@{main.c}!hextorgba@{hextorgba}}
+\index{hextorgba@{hextorgba}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{hextorgba()}{hextorgba()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structrgba__t}{rgba\+\_\+t}} hextorgba (\begin{DoxyParamCaption}\item[{unsigned int}]{hex }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{main_8c_a018ae9d690e58247df36fbbc56295aa5}\label{main_8c_a018ae9d690e58247df36fbbc56295aa5}} 
+\index{main.c@{main.c}!initializecursor@{initializecursor}}
+\index{initializecursor@{initializecursor}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{initializecursor()}{initializecursor()}}
+{\footnotesize\ttfamily void initializecursor (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structcursor__t}{cursor\+\_\+t}} $\ast$}]{cursor }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{main_8c_ae2aa91b64e38359c90ade12dc65857cc}\label{main_8c_ae2aa91b64e38359c90ade12dc65857cc}} 
+\index{main.c@{main.c}!initializeentitylist@{initializeentitylist}}
+\index{initializeentitylist@{initializeentitylist}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{initializeentitylist()}{initializeentitylist()}}
+{\footnotesize\ttfamily void initializeentitylist (\begin{DoxyParamCaption}\item[{bool $\ast$}]{is\+\_\+entity\+\_\+in\+\_\+slot,  }\item[{size\+\_\+t}]{size }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{main_8c_a840291bc02cba5474a4cb46a9b9566fe}\label{main_8c_a840291bc02cba5474a4cb46a9b9566fe}} 
+\index{main.c@{main.c}!main@{main}}
+\index{main@{main}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{main()}{main()}}
+{\footnotesize\ttfamily int main (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+
+
+Main function of the game. 
+
+\begin{DoxyAuthor}{Author}
+G03
+\end{DoxyAuthor}
+This function initializes the GPU, mouse, cursor, and other game elements. It also creates and manages the threads for mouse and game logic.
+
+\begin{DoxyReturn}{Returns}
+0 if the game runs successfully, -\/1 if an error occurs during initialization. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{main_8c_a48e612918e6209759da80de7bf70ae11}\label{main_8c_a48e612918e6209759da80de7bf70ae11}} 
+\index{main.c@{main.c}!mouse\_thread\_func@{mouse\_thread\_func}}
+\index{mouse\_thread\_func@{mouse\_thread\_func}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{mouse\_thread\_func()}{mouse\_thread\_func()}}
+{\footnotesize\ttfamily void $\ast$ mouse\+\_\+thread\+\_\+func (\begin{DoxyParamCaption}\item[{void $\ast$}]{arg }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{main_8c_a632ee47f8cb453f6516405fefbd56ce4}\label{main_8c_a632ee47f8cb453f6516405fefbd56ce4}} 
+\index{main.c@{main.c}!normalizergb@{normalizergb}}
+\index{normalizergb@{normalizergb}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{normalizergb()}{normalizergb()}}
+{\footnotesize\ttfamily void normalizergb (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structrgb__t}{rgb\+\_\+t}} $\ast$}]{color }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{main_8c_a3e2909d74bdeb6f1888a1f6f71168913}\label{main_8c_a3e2909d74bdeb6f1888a1f6f71168913}} 
+\index{main.c@{main.c}!normalizergba@{normalizergba}}
+\index{normalizergba@{normalizergba}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{normalizergba()}{normalizergba()}}
+{\footnotesize\ttfamily void normalizergba (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structrgba__t}{rgba\+\_\+t}} $\ast$}]{color }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{main_8c_a97dd133c6618228b057daedb482f6cda}\label{main_8c_a97dd133c6618228b057daedb482f6cda}} 
+\index{main.c@{main.c}!renderhudsprites@{renderhudsprites}}
+\index{renderhudsprites@{renderhudsprites}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{renderhudsprites()}{renderhudsprites()}}
+{\footnotesize\ttfamily void renderhudsprites (\begin{DoxyParamCaption}\item[{FILE $\ast$}]{gpu,  }\item[{\mbox{\hyperlink{structcursor__t}{cursor\+\_\+t}} $\ast$}]{cursor,  }\item[{bool}]{collision,  }\item[{int}]{bullet }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{main_8c_a4919d7f316408bc74ab7ca35f3557869}\label{main_8c_a4919d7f316408bc74ab7ca35f3557869}} 
+\index{main.c@{main.c}!updatecursor@{updatecursor}}
+\index{updatecursor@{updatecursor}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{updatecursor()}{updatecursor()}}
+{\footnotesize\ttfamily void updatecursor (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structcursor__t}{cursor\+\_\+t}} $\ast$}]{cursor,  }\item[{\mbox{\hyperlink{structmouse__t}{mouse\+\_\+t}} $\ast$}]{mouse }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{main_8c_a8ecdbcb73e66951fe0b459ef66d6a8ac}\label{main_8c_a8ecdbcb73e66951fe0b459ef66d6a8ac}} 
+\index{main.c@{main.c}!updateentities@{updateentities}}
+\index{updateentities@{updateentities}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{updateentities()}{updateentities()}}
+{\footnotesize\ttfamily void updateentities (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structentity__t}{entity\+\_\+t}} $\ast$}]{entities,  }\item[{bool $\ast$}]{is\+\_\+entity\+\_\+in\+\_\+slot,  }\item[{\mbox{\hyperlink{structcursor__t}{cursor\+\_\+t}} $\ast$}]{cursor,  }\item[{bool}]{has\+\_\+shot,  }\item[{FILE $\ast$}]{gpu,  }\item[{bool $\ast$}]{collision,  }\item[{int}]{bullet,  }\item[{\mbox{\hyperlink{structtimetracker__t}{timetracker\+\_\+t}} $\ast$}]{timer }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{main_8c_a64df227205120c5471faf9738af683bb}\label{main_8c_a64df227205120c5471faf9738af683bb}} 
+\index{main.c@{main.c}!updatemouseandcursor@{updatemouseandcursor}}
+\index{updatemouseandcursor@{updatemouseandcursor}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{updatemouseandcursor()}{updatemouseandcursor()}}
+{\footnotesize\ttfamily void updatemouseandcursor (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structmouse__t}{mouse\+\_\+t}} $\ast$}]{mouse,  }\item[{\mbox{\hyperlink{structcursor__t}{cursor\+\_\+t}} $\ast$}]{cursor }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{main_8c_af28c6f3647660695002833f1b271a2fb}\label{main_8c_af28c6f3647660695002833f1b271a2fb}} 
+\index{main.c@{main.c}!updateposition@{updateposition}}
+\index{updateposition@{updateposition}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{updateposition()}{updateposition()}}
+{\footnotesize\ttfamily void updateposition (\begin{DoxyParamCaption}\item[{double $\ast$}]{x,  }\item[{double $\ast$}]{y,  }\item[{double}]{vx,  }\item[{double}]{vy,  }\item[{double}]{elapsed\+Time }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{main_8c_ac1ee3f9886f7c472f42bdb46e37c8352}\label{main_8c_ac1ee3f9886f7c472f42bdb46e37c8352}} 
+\index{main.c@{main.c}!updatetime@{updatetime}}
+\index{updatetime@{updatetime}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{updatetime()}{updatetime()}}
+{\footnotesize\ttfamily void updatetime (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structtimetracker__t}{timetracker\+\_\+t}} $\ast$}]{timer }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{main_8c_ad13638fa2fe71682da3c1fe217647519}\label{main_8c_ad13638fa2fe71682da3c1fe217647519}} 
+\index{main.c@{main.c}!updatevelocity@{updatevelocity}}
+\index{updatevelocity@{updatevelocity}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{updatevelocity()}{updatevelocity()}}
+{\footnotesize\ttfamily void updatevelocity (\begin{DoxyParamCaption}\item[{double $\ast$}]{vx,  }\item[{double $\ast$}]{vy,  }\item[{double}]{ax,  }\item[{double}]{ay,  }\item[{double}]{elapsed\+Time }\end{DoxyParamCaption})}
+
+
+
+\doxysubsection{Variable Documentation}
+\mbox{\Hypertarget{main_8c_a797be004cb6f126cae21075cc7136bc9}\label{main_8c_a797be004cb6f126cae21075cc7136bc9}} 
+\index{main.c@{main.c}!bullet@{bullet}}
+\index{bullet@{bullet}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{bullet}{bullet}}
+{\footnotesize\ttfamily int bullet = 0}
+
+\mbox{\Hypertarget{main_8c_ab254f5b3929dd17a37def4de0622f3e9}\label{main_8c_ab254f5b3929dd17a37def4de0622f3e9}} 
+\index{main.c@{main.c}!cursor@{cursor}}
+\index{cursor@{cursor}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{cursor}{cursor}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structcursor__t}{cursor\+\_\+t}} cursor}
+
+\mbox{\Hypertarget{main_8c_af540bcd0cdebabad789db751ac6e3345}\label{main_8c_af540bcd0cdebabad789db751ac6e3345}} 
+\index{main.c@{main.c}!gpu@{gpu}}
+\index{gpu@{gpu}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{gpu}{gpu}}
+{\footnotesize\ttfamily FILE$\ast$ gpu}
+
+\mbox{\Hypertarget{main_8c_a2c20eaa54498e32ea16e679ff12d5323}\label{main_8c_a2c20eaa54498e32ea16e679ff12d5323}} 
+\index{main.c@{main.c}!mouse@{mouse}}
+\index{mouse@{mouse}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{mouse}{mouse}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structmouse__t}{mouse\+\_\+t}} mouse}
+
+\mbox{\Hypertarget{main_8c_a1137af5e769a71b09a66bbe5500a5b07}\label{main_8c_a1137af5e769a71b09a66bbe5500a5b07}} 
+\index{main.c@{main.c}!mouse\_lock@{mouse\_lock}}
+\index{mouse\_lock@{mouse\_lock}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{mouse\_lock}{mouse\_lock}}
+{\footnotesize\ttfamily pthread\+\_\+mutex\+\_\+t mouse\+\_\+lock = PTHREAD\+\_\+\+MUTEX\+\_\+\+INITIALIZER}
+
+\mbox{\Hypertarget{main_8c_a7c10027ca174fc9d529796f04aca6bd4}\label{main_8c_a7c10027ca174fc9d529796f04aca6bd4}} 
+\index{main.c@{main.c}!running@{running}}
+\index{running@{running}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{running}{running}}
+{\footnotesize\ttfamily volatile bool running = true}
+

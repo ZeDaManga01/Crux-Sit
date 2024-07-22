@@ -112,6 +112,15 @@ FILE *gpu;
 
 int bullet = 0;
 
+/**
+ * @author G03
+ * @brief Main function of the game.
+ *
+ * This function initializes the GPU, mouse, cursor, and other game elements.
+ * It also creates and manages the threads for mouse and game logic.
+ *
+ * @return 0 if the game runs successfully, -1 if an error occurs during initialization.
+ */
 int main(void) {
     gpu = NULL;
 
@@ -129,11 +138,11 @@ int main(void) {
 
     initializecursor(&cursor);
 
-    pthread_t mouse_thread, game_thread;
-
     clearbackground(gpu);
     setbackground(gpu, 2, 1, 5);
     fillbackground(gpu, night_data[0], DIVIDED_SCREEN_WIDTH, DIVIDED_SCREEN_HEIGHT);
+
+    pthread_t mouse_thread, game_thread;
 
     pthread_create(&mouse_thread, NULL, mouse_thread_func, NULL);
     pthread_create(&game_thread, NULL, game_thread_func, (void *)gpu);
