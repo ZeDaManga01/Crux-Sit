@@ -8,6 +8,8 @@ COLENDA_DIR = $(INCLUDE_DIR)/colenda
 MOUSE_DIR = $(INCLUDE_DIR)/mouse
 ASSETS_DIR = assets
 
+LD_FLAGS = -lrt -lm -lpthread
+
 # Arquivos fonte
 SOURCES = $(SRC_DIR)/main.c $(COLENDA_DIR)/colenda.c $(MOUSE_DIR)/mouse.c $(ASSETS_DIR)/night.c
 
@@ -23,7 +25,7 @@ all: $(TARGET)
 
 # Linkagem do executável
 $(TARGET): $(OBJECTS) 
-	$(CC) $(OBJECTS) -o $@ -lrt -lm 
+	$(CC) $(OBJECTS) -o $@ $(LD_FLAGS)
 
 # Compilação dos arquivos objeto
 %.o: %.c

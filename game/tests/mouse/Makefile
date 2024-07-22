@@ -2,7 +2,9 @@
 CC = gcc
 
 # Flags do compilador
-CFLAGS = -I../../include/mouse -Wall -Wextra 
+CFLAGS = -I../../include/mouse -Wall -Wextra
+
+LD_FLAGS = -lrt -lm -lpthread
 
 # Arquivo objeto
 OBJ = test.o mouse.o
@@ -14,7 +16,7 @@ TARGET = test
 all: $(TARGET)
 
 $(TARGET): $(OBJ)
-	$(CC) $(OBJ) -o $(TARGET) -lm
+	$(CC) $(OBJ) -o $(TARGET) $(LD_FLAGS)
 
 test.o: test.c
 	$(CC) $(CFLAGS) -c test.c -o test.o
