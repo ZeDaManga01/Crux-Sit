@@ -1,4 +1,4 @@
-# Crux Sit
+# ![Icon](docs/icon.png) Crux Sit
 "Crux Sit" é um jogo desenvolvido em C para a FPGA DE1-SoC com ajuda da GPU CoLenda, onde o jogador é um caçador de seres sobrenaturais e precisa impedir que ondas de monstros alcancem a vila.
 
 O jogo possui três tipos de monstros: zumbis, lobisomens e vampiros, e o jogador precisa atirar neles usando o tipo de munição efetiva para cada monstro: bala normal, bala de prata e dente de alho. Ademais, os monstros possuem atributos diferentes: o zumbi se move lentamente, enquanto o lobisomem corre e o vampiro voa em uma senóide, exigindo que o jogador tenha uma boa precisão de mira para defender a vila. Por fim, o jogador possui três vidas, e perde uma quando um monstro consegue alcançar a vila. Os pontos são acumulados conforme os monstros são derrotados. A rodada atual termina quando amanhece.
