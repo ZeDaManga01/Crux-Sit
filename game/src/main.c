@@ -96,7 +96,8 @@ void initializecursor(cursor_t *cursor);
 void updatemouseandcursor(mouse_t *mouse, cursor_t *cursor);
 int createrandomentity(entity_t *entities, int *is_entity_in_slot);
 void updateentities(FILE* gpu, entity_t *entities, int *is_entity_in_slot, timer_t *timer);
-void rendercursor(FILE *gpu, cursor_t *cursor);
+void killentity(entity_t *entities, int *is_entity_in_slot, cursor_t cursor);
+void rendercursor(FILE *gpu, cursor_t cursor);
 void handleuserinput(mouse_t *mouse, int *bullet, volatile int *running);
 void *mouse_thread_func(void *arg);
 void *game_thread_func(void *arg);
@@ -403,22 +404,20 @@ void updateentities(FILE *gpu, entity_t *entities, int *is_entity_in_slot, timer
 {
     for (int i = 0; i < MAX_ENTITIES; i++) {
         pthread_mutex_lock(&entities_lock);
-        while(pause_entities) {
+        while (pause_entities) {
             pthread_cond_wait(&entities_cond, &entities_lock);
         }
-        pthread_mutex_unlock(&entities_lock);
 
         if (!is_entity_in_slot[i]) {
+            pthread_mutex_unlock(&entities_lock);
             continue;
         }
 
-        pthread_mutex_lock(&entities_lock);
+        // Atualização de velocidade
         updatevelocity(&entities[i].velocity.x, &entities[i].velocity.y, entities[i].acceleration.x, entities[i].acceleration.y, timer->elapsedTime);
-        pthread_mutex_unlock(&entities_lock);
 
-        pthread_mutex_lock(&entities_lock);
+        // Atualização de posição
         updateposition(&entities[i].position.x, &entities[i].position.y, entities[i].velocity.x, entities[i].velocity.y, timer->elapsedTime);
-        pthread_mutex_unlock(&entities_lock);
 
         switch (entities[i].type) {
             case ZOMBIE:
@@ -434,28 +433,28 @@ void updateentities(FILE *gpu, entity_t *entities, int *is_entity_in_slot, timer
                 break;
         }
 
-        
         if (entities[i].type == VAMPIRE && 
-        ((entities[i].position.y > entities[i].start_position.y && entities[i].acceleration.y > 0) || 
-        (entities[i].position.y < entities[i].start_position.y && entities[i].acceleration.y < 0))) {
-            pthread_mutex_lock(&entities_lock);
+            ((entities[i].position.y > entities[i].start_position.y && entities[i].acceleration.y > 0) || 
+             (entities[i].position.y < entities[i].start_position.y && entities[i].acceleration.y < 0))) {
             entities[i].acceleration.y = -entities[i].acceleration.y;
-            pthread_mutex_unlock(&entities_lock);
         }
 
         if (entities[i].position.x < 0) {
-            pthread_mutex_lock(&entities_lock);
             deleteentity(is_entity_in_slot, i, MAX_ENTITIES);
             pthread_mutex_unlock(&entities_lock);
             
             setsprite(gpu, i + ENTITY_SPRITE_LAYER_OFFSET, 0, 0, 0, 0);
+            continue;
         }
+
+        pthread_mutex_unlock(&entities_lock);
     }
 }
 
-void rendercursor(FILE *gpu, cursor_t *cursor)
+
+void rendercursor(FILE *gpu, cursor_t cursor)
 {
-    setsprite(gpu, 1, 1, cursor->x, cursor->y, 0);
+    setsprite(gpu, 1, 1, cursor.x, cursor.y, 0);
 }
 
 void renderhudsprites(FILE *gpu, int bullet)
@@ -463,7 +462,7 @@ void renderhudsprites(FILE *gpu, int bullet)
     setsprite(gpu, 2, 1, 619, 459, bullet + BULLET_OFFSET);
 }
 
-void killentity(entity_t *entities, int *is_entity_in_slot) 
+void killentity(entity_t *entities, int *is_entity_in_slot, cursor_t cursor) 
 {
     for (size_t i = 0; i < MAX_ENTITIES; i++) {
         if (!is_entity_in_slot[i]) {
@@ -490,7 +489,7 @@ void killentity(entity_t *entities, int *is_entity_in_slot)
 
 void handleuserinput(mouse_t *mouse, int *bullet, volatile int *running) {
     if (mouse->left_button_clicked) {
-        killentity(entities, is_entity_in_slot);
+        killentity(entities, is_entity_in_slot, cursor);
     }
 
     if (mouse->right_button_clicked) {
@@ -543,17 +542,7 @@ void *game_thread_func(void *arg) {
         
         updateentities(gpu, entities, is_entity_in_slot, &timer);
         renderhudsprites(gpu, bullet);
-        
-        pthread_mutex_lock(&mouse_lock);
-        pause_mouse = 1;
-        pthread_mutex_unlock(&mouse_lock);
-        
-        rendercursor(gpu, &cursor);
-
-        pthread_mutex_lock(&mouse_lock);
-        pause_mouse = 0;
-        pthread_cond_signal(&mouse_cond);
-        pthread_mutex_unlock(&mouse_lock);
+        rendercursor(gpu, cursor);
 
         usleep(10000);
     }
