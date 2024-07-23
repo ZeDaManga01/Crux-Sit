@@ -37,6 +37,7 @@ int copytobuffer(char *buffer, size_t size, uint64_t instruction);
 int setbackground(FILE *gpu, uint8_t red, uint8_t green, uint8_t blue);
 int setsprite(FILE *gpu, uint8_t layer, int show, uint16_t x, uint16_t y, uint16_t sprite);
 int setspritememory(FILE *gpu, uint_fast16_t address, uint_fast8_t red, uint_fast8_t green, uint_fast8_t blue);
+int setspritememorywithreg(FILE *gpu, uint8_t reg, uint16_t pixel, uint_fast8_t red, uint_fast8_t green, uint_fast8_t blue);
 int setpoligon(FILE *gpu, uint_fast8_t layer, uint_fast8_t type, uint16_t x, uint16_t y, uint_fast8_t red, uint_fast8_t green, uint_fast8_t blue, uint_fast8_t size);
 int setbackgroundblock(FILE *gpu, uint_fast8_t row, uint_fast8_t column, uint_fast8_t red, uint_fast8_t green, uint_fast8_t blue);
 

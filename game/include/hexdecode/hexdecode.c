@@ -23,17 +23,21 @@ rgba_t hextorgba(unsigned int hex)
     return color;
 }
 
-void normalizergb(rgb_t *color)
+rgb_t normalizergb(rgb_t color)
 {
-    color->r /= 32;
-    color->g /= 32;
-    color->b /= 32;
+    color.r /= 32;
+    color.g /= 32;
+    color.b /= 32;
+
+    return color;
 }
 
-void normalizergba(rgba_t *color)
+rgba_t normalizergba(rgba_t color)
 {
-    color->r /= 32;
-    color->g /= 32;
-    color->b /= 32;
-    color->a = (color->a > 0) ? 1 : 0;
+    color.r /= 32;
+    color.g /= 32;
+    color.b /= 32;
+    color.a = (color.a > 0) ? 1 : 0;
+
+    return color;
 }

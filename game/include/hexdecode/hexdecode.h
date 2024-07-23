@@ -16,7 +16,7 @@ typedef struct {
 
 rgb_t hextorgb(unsigned int hex);
 rgba_t hextorgba(unsigned int hex);
-void normalizergb(rgb_t *color);
-void normalizergba(rgba_t *color);
+rgb_t normalizergb(rgb_t color);
+rgba_t normalizergba(rgba_t color);
 
 #endif

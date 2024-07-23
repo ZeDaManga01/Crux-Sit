@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "stdint.h": "c",
+        "garlic.h": "c",
+        "day.h": "c"
+    }
+}
