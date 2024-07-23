@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <unistd.h>
 #include <time.h>
 #include <linux/time.h>
@@ -73,8 +72,8 @@ typedef struct {
 } entity_t;
 
 typedef struct {
-    position_t position;
-    position_t previous_position;
+    int x, y;
+    int px, py;
 } cursor_t;
 
 rgb_t hextorgb(unsigned int hex);
@@ -87,30 +86,38 @@ void updateposition(double *x, double *y, double vx, double vy, double elapsedTi
 void updatevelocity(double *vx, double *vy, double ax, double ay, double elapsedTime);
 void updatecursor(cursor_t *cursor, mouse_t *mouse);
 int checkcollision(int x1, int y1, int x2, int y2, int size_x1, int size_y1, int size_x2, int size_y2);
-int createentity(entity_t *entities, bool *is_entity_in_slot, entity_t mob, size_t size);
-void deleteentity(bool *is_entity_in_slot, size_t index, size_t size);
+int createentity(entity_t *entities, int *is_entity_in_slot, entity_t mob, size_t size);
+void deleteentity(int *is_entity_in_slot, size_t index, size_t size);
 void changebullettype(int *bullet);
 void clearbackground(FILE *gpu);
 void fillbackground(FILE *gpu, const uint32_t *data, size_t x, size_t y);
 void clearsprites(FILE *gpu);
-void initializeentitylist(bool *is_entity_in_slot, size_t size);
+void initializeentitylist(int *is_entity_in_slot, size_t size);
 void initializecursor(cursor_t *cursor);
 void updatemouseandcursor(mouse_t *mouse, cursor_t *cursor);
-void createnewentity(entity_t *entities, bool *is_entity_in_slot, double *count, double spawnEntitytime, double elapsed_time);
-void updateentities(entity_t *entities, bool *is_entity_in_slot, cursor_t *cursor, bool has_shot, FILE *gpu, bool *collision, int bullet, timetracker_t *timer);
-void renderhudsprites(FILE *gpu, cursor_t *cursor, bool collision, int bullet);
-void handleuserinput(mouse_t *mouse, int *bullet, volatile bool *running);
+void createnewentity(entity_t *entities, int *is_entity_in_slot, double *count, double spawnEntitytime, double elapsed_time);
+void updateentities(FILE* gpu, entity_t *entities, int *is_entity_in_slot, timetracker_t *timer);
+void rendercursor(FILE *gpu, cursor_t *cursor);
+void handleuserinput(mouse_t *mouse, int *bullet, volatile int *running);
 void *mouse_thread_func(void *arg);
 void *game_thread_func(void *arg);
 
-volatile bool running = true; // Usado para controlar a execução das threads
+int running = 1; // Usado para controlar a execução das threads
+
+int pause_mouse = 0;
+int pause_game = 0;
+pthread_cond_t mouse_cond = PTHREAD_COND_INITIALIZER;
+pthread_cond_t game_cond = PTHREAD_COND_INITIALIZER;
 pthread_mutex_t mouse_lock = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t game_lock = PTHREAD_MUTEX_INITIALIZER;
 mouse_t mouse;
 cursor_t cursor;
 
 FILE *gpu;
 
 int bullet = 0;
+entity_t entities[MAX_ENTITIES];
+int is_entity_in_slot[MAX_ENTITIES];
 
 /**
  * @author G03
@@ -137,6 +144,7 @@ int main(void) {
     }
 
     initializecursor(&cursor);
+    initializeentitylist(is_entity_in_slot, MAX_ENTITIES);
 
     clearbackground(gpu);
     setbackground(gpu, 2, 1, 5);
@@ -225,43 +233,38 @@ void updatevelocity(double *vx, double *vy, double ax, double ay, double elapsed
 
 void updatecursor(cursor_t *cursor, mouse_t *mouse)
 {
-    cursor->previous_position.x = cursor->position.x;
-    cursor->previous_position.y = cursor->position.y;
+    cursor->px = cursor->x;
+    cursor->py = cursor->y;
 
     /* atualiza a posição do mouse */
-    cursor->position.x += mouse->dx;
-    cursor->position.y -= mouse->dy;
+    cursor->x += mouse->dx;
+    cursor->y -= mouse->dy;
 
     /* condicionais para manter o cursor dentro da tela
     sem ele, o cursor iria "fugir", andando infinitamente para os cantos */
-    if (cursor->position.x < 0) {
-        cursor->position.x = 0;
+    if (cursor->x < 0) {
+        cursor->x = 0;
     } 
-    else if (cursor->position.x >= SCREEN_WIDTH) {
-        cursor->position.x = SCREEN_WIDTH-1;
+    else if (cursor->x >= SCREEN_WIDTH) {
+        cursor->x = SCREEN_WIDTH-1;
     }
 
-    if (cursor->position.y < 0) {
-        cursor->position.y = 0;
+    if (cursor->y < 0) {
+        cursor->y = 0;
     }
-    else if (cursor->position.y >= SCREEN_HEIGHT) {
-        cursor->position.y = SCREEN_HEIGHT-1;
+    else if (cursor->y >= SCREEN_HEIGHT) {
+        cursor->y = SCREEN_HEIGHT-1;
     }
 
     return;
 }
 
-int checkcollision(int x1, int y1, int x2, int y2, int size_x1, int size_y1, int size_x2, int size_y2)
+inline int checkcollision(int x1, int y1, int x2, int y2, int size_x1, int size_y1, int size_x2, int size_y2)
 {
-	int c1 = x1 < (x2 + size_x2);
-	int c2 = (x1 + size_x1) > x2;
-	int c3 = y1 < (y2 + size_y2);
-	int c4 = (y1 + size_y1) > y2;
-	
-	return c1 && c2 && c3 && c4;
+	return x1 < (x2 + size_x2) && (x1 + size_x1) > x2 && y1 < (y2 + size_y2) && (y1 + size_y1) > y2;
 }
 
-int createentity(entity_t *entities, bool *is_entity_in_slot, entity_t mob, size_t size)
+int createentity(entity_t *entities, int *is_entity_in_slot, entity_t mob, size_t size)
 {
     size_t i;
 
@@ -271,17 +274,17 @@ int createentity(entity_t *entities, bool *is_entity_in_slot, entity_t mob, size
         return -1;
 
     entities[i] = mob;
-    is_entity_in_slot[i] = true;
+    is_entity_in_slot[i] = 1;
 
     return (int) i;
 }
 
-void deleteentity(bool *is_entity_in_slot, size_t index, size_t size) 
+void deleteentity(int *is_entity_in_slot, size_t index, size_t size) 
 {
     if (index >= size)
         return;
 
-    is_entity_in_slot[index] = false;
+    is_entity_in_slot[index] = 0;
 }
 
 void changebullettype(int *bullet) 
@@ -307,37 +310,37 @@ void fillbackground(FILE *gpu, const uint32_t *data, size_t x, size_t y)
     int count_background = 0;
     rgba_t color;
 
-    for (int i = 0; i < y; i++) {
-        for (int j = 0; j < x; j++) {
+    for (size_t i = 0; i < y; i++) {
+        for (size_t j = 0; j < x; j++) {
             color = hextorgba(data[count_background++]);
             normalizergba(&color);
 
             if (color.a)
-                setbackgroundblock(gpu, i, j, color.r, color.g, color.b);
+                setbackgroundblock(gpu, j, i, color.r, color.g, color.b);
         }
     }
 }
 
 void clearsprites(FILE *gpu)
 {
-    for (int i = 1; i < 32; i++) {
+    for (size_t i = 1; i < 32; i++) {
         setsprite(gpu, i, 0, 0, 0, 0);
     }
 }
 
-void initializeentitylist(bool *is_entity_in_slot, size_t size)
+void initializeentitylist(int *is_entity_in_slot, size_t size)
 {
-    for (int i = 0; i < size; i++) {
+    for (size_t i = 0; i < size; i++) {
         is_entity_in_slot[i] = false;
     }
 }
 
 void initializecursor(cursor_t *cursor)
 {
-    cursor->position.x = 0;
-    cursor->position.y = 0;
-    cursor->previous_position.x = 0;
-    cursor->previous_position.y = 0;
+    cursor->x = 0;
+    cursor->y = 0;
+    cursor->px = 0;
+    cursor->py = 0;
 }
 
 void updatemouseandcursor(mouse_t *mouse, cursor_t *cursor) {
@@ -346,7 +349,7 @@ void updatemouseandcursor(mouse_t *mouse, cursor_t *cursor) {
     updatecursor(cursor, mouse);
 }
 
-void createnewentity(entity_t *entities, bool *is_entity_in_slot, double *count, double spawnEntitytime, double elapsed_time) {
+void createnewentity(entity_t *entities, int *is_entity_in_slot, double *count, double spawnEntitytime, double elapsed_time) {
     entity_t example;
 
     if (*count < spawnEntitytime) {
@@ -371,30 +374,22 @@ void createnewentity(entity_t *entities, bool *is_entity_in_slot, double *count,
             example.acceleration.y = -example.velocity.y;
         }
 
-        int result = createentity(entities, is_entity_in_slot, example, MAX_ENTITIES);
+        createentity(entities, is_entity_in_slot, example, MAX_ENTITIES);
         *count = 0;
     }
 }
 
-void updateentities(entity_t *entities, bool *is_entity_in_slot, cursor_t *cursor, bool has_shot, FILE *gpu, bool *collision, int bullet, timetracker_t *timer) {
+void updateentities(FILE *gpu, entity_t *entities, int *is_entity_in_slot, timetracker_t *timer) {
     for (int i = 0; i < MAX_ENTITIES; i++) {
         if (!is_entity_in_slot[i]) {
             continue;
         }
 
-        if (checkcollision(cursor->position.x, cursor->position.y, entities[i].position.x, entities[i].position.y, 20, 20, entities[i].hitbox.size_x, entities[i].hitbox.size_y)) {
-            *collision = true;
+        pthread_mutex_lock(&mouse_lock);
+        pause_mouse = 1;
+        pthread_mutex_unlock(&mouse_lock);
 
-            setsprite(gpu, i + ENTITY_SPRITE_LAYER_OFFSET, 1, entities[i].position.x, entities[i].position.y, entities[i].type * 2 + 1);
-
-            if (has_shot && bullet == entities[i].type) {
-                deleteentity(is_entity_in_slot, i, MAX_ENTITIES);
-                setsprite(gpu, i + ENTITY_SPRITE_LAYER_OFFSET, 0, 0, 0, 0);
-                break;
-            }
-        } else {
-            setsprite(gpu, i + ENTITY_SPRITE_LAYER_OFFSET, 1, entities[i].position.x, entities[i].position.y, entities[i].type * 2);
-        }
+        setsprite(gpu, i + ENTITY_SPRITE_LAYER_OFFSET, 1, entities[i].position.x, entities[i].position.y, entities[i].type * 2);
 
         updatevelocity(&entities[i].velocity.x, &entities[i].velocity.y, entities[i].acceleration.x, entities[i].acceleration.y, timer->elapsedTime);
         updateposition(&entities[i].position.x, &entities[i].position.y, entities[i].velocity.x, entities[i].velocity.y, timer->elapsedTime);
@@ -405,41 +400,75 @@ void updateentities(entity_t *entities, bool *is_entity_in_slot, cursor_t *curso
             entities[i].acceleration.y = -entities[i].acceleration.y; 
         }
 
-        if (entities[i].position.x < -20) {
+        if (entities[i].position.x < 0) {
             deleteentity(is_entity_in_slot, i, MAX_ENTITIES);
             setsprite(gpu, i + ENTITY_SPRITE_LAYER_OFFSET, 0, 0, 0, 0);
+        }
+        pthread_mutex_lock(&mouse_lock);
+        pause_mouse = 0;
+        pthread_cond_signal(&mouse_cond);
+        pthread_mutex_unlock(&mouse_lock);
+    }
+}
+
+void renderhudsprites(FILE *gpu, int bullet) {
+    setsprite(gpu, 3, 1, 619, 459, bullet * 2);
+}
+
+void rendercursor(FILE *gpu, cursor_t *cursor)
+{
+    setsprite(gpu, 1, 1, cursor->x, cursor->y, 20);
+}
+
+void killentity(entity_t *entities, int *is_entity_in_slot) 
+{
+    for (size_t i = 0; i < MAX_ENTITIES; i++) {
+        if (!is_entity_in_slot[i]) {
+            continue;
+        }
+
+        if (checkcollision(cursor.x, cursor.y, entities[i].position.x, entities[i].position.y, 20, 20, entities[i].hitbox.size_x, entities[i].hitbox.size_y) && bullet == entities[i].type) {
+            pthread_mutex_lock(&game_lock);
+            pause_game = 1;
+            pthread_mutex_unlock(&game_lock);     
+
+            deleteentity(is_entity_in_slot, i, MAX_ENTITIES);
+            setsprite(gpu, i + ENTITY_SPRITE_LAYER_OFFSET, 0, 0, 0, 0);
+
+            pthread_mutex_lock(&game_lock);
+            pause_game = 0;
+            pthread_cond_signal(&game_cond);
+            pthread_mutex_unlock(&game_lock);
             break;
         }
     }
 }
 
-void renderhudsprites(FILE *gpu, cursor_t *cursor, bool collision, int bullet) {
-    if (collision) {
-        setsprite(gpu, 1, 0, cursor->position.x, cursor->position.y, 20);
-    } else {
-        setsprite(gpu, 1, 1, cursor->position.x, cursor->position.y, 20);
+void handleuserinput(mouse_t *mouse, int *bullet, volatile int *running) {
+    if (mouse->left_button_clicked) {
+        killentity(entities, is_entity_in_slot);
     }
 
-    setsprite(gpu, 3, 1, 619, 459, bullet * 2);
-}
-
-void handleuserinput(mouse_t *mouse, int *bullet, volatile bool *running) {
-    if (mouse->right_button_released) {
+    if (mouse->right_button_clicked) {
         changebullettype(bullet);
     }
 
     if (mouse->middle_button_released) {
-        running = false;
+        *running = 0;
     }
 }
 
 void *mouse_thread_func(void *arg) {
     while (running) {
         pthread_mutex_lock(&mouse_lock);
-        updatemouseandcursor(&mouse, &cursor);
-        handleuserinput(&mouse, &bullet, &running);
+        while(pause_mouse) {
+            pthread_cond_wait(&mouse_cond, &mouse_lock);
+        }
         pthread_mutex_unlock(&mouse_lock);
-        usleep(1000);
+
+        updatemouseandcursor(&mouse, &cursor);
+        printf("%d %d %d %d\n", cursor.x, cursor.y, mouse.dx, mouse.dy);
+        handleuserinput(&mouse, &bullet, &running);
     }
 
     return NULL;
@@ -449,26 +478,33 @@ void *game_thread_func(void *arg) {
     timetracker_t timer;
     timer.lastTime = gettime();
 
-    entity_t entities[MAX_ENTITIES];
-    bool is_entity_in_slot[MAX_ENTITIES];
-    initializeentitylist(is_entity_in_slot, MAX_ENTITIES);
-
+    double count = 1;
     double spawnentitytime = 1;
-    double count = 0;
-    bool collision = false;
-    bool running = true;
 
     while (running) {
+        pthread_mutex_lock(&game_lock);
+        while(pause_game) {
+            pthread_cond_wait(&game_cond, &game_lock);
+        }
+        pthread_mutex_unlock(&game_lock);
+
         updatetime(&timer);
         createnewentity(entities, is_entity_in_slot, &count, spawnentitytime, timer.elapsedTime);
+        updateentities(gpu, entities, is_entity_in_slot, &timer);
+        
+        renderhudsprites(gpu, bullet);
+        
         pthread_mutex_lock(&mouse_lock);
-        updateentities(entities, is_entity_in_slot, &cursor, mouse.left_button_clicked, gpu, &collision, bullet, &timer);
-        renderhudsprites(gpu, &cursor, collision, bullet);
+        pause_mouse = 1;
         pthread_mutex_unlock(&mouse_lock);
+        
+        rendercursor(gpu, &cursor);
 
-        collision = false;
+        pthread_mutex_lock(&mouse_lock);
+        pause_mouse = 0;
+        pthread_cond_signal(&mouse_cond);
+        pthread_mutex_unlock(&mouse_lock);
     }
 
     return NULL;
 }
-
