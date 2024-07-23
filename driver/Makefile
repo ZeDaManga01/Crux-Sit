@@ -2,11 +2,6 @@ DEVICE_NAME := colenda_driver
 
 KDIR := /lib/modules/$(shell uname -r)/build
 PWD := $(shell pwd)
-INCLUDE_DIR := $(PWD)/include
-SRC_DIR := $(PWD)/src
-
-SRC_FILES := $(SRC_DIR)/colenda_driver.c
-INCLUDE_FILES := $(INCLUDE_DIR)/arm_address_map.h
 
 obj-m := $(DEVICE_NAME).o
 

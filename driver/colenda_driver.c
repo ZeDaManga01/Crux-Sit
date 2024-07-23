@@ -7,7 +7,7 @@
 #include <linux/kobject.h>
 #include <linux/kdev_t.h>
 #include <linux/list.h>
-#include "../include/arm_address_map.h"
+#include "address_map_arm.h"
 
 #define DATA_A_BASE 0x80
 #define DATA_B_BASE 0x70
@@ -82,10 +82,6 @@ static int gpu_decode_instruction(char *buffer)
     
     *DATA_B_ptr = aux;
     
-    printk(KERN_INFO "Successfully transferred data to DATA_A and DATA_B\n");
-    printk(KERN_INFO "DATA_A value: %d\n", (*DATA_A_ptr));
-    printk(KERN_INFO "DATA_B value: %d\n", (*DATA_B_ptr));
-    
     return 0;
 }
 
@@ -96,7 +92,6 @@ static ssize_t gpu_write(struct file *filp, const char *buff, size_t len, loff_t
     ssize_t size = min(sizeof(buffer), len);
 
     if (len < MIN_BUFFER_SIZE) {
-        printk(KERN_ALERT "Buffer underflow\n");
         return -EINVAL;
     }
     
@@ -110,8 +105,6 @@ static ssize_t gpu_write(struct file *filp, const char *buff, size_t len, loff_t
     if(size == 0) {
     	return 0;
     }
-
-    printk(KERN_INFO "Received buffer\n");
 
     while ((*WRFULL_ptr)) {}
 
