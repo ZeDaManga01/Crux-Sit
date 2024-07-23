@@ -27,27 +27,29 @@ mouse_t mouseinit()
     if (fd == -1) {
         return (mouse_t){.fd = -1};
     }
-
-    // Return the initialized mouse structure with default values
-    return (mouse_t){
+    
+    mouse_t mouse = {
         .fd = fd,
         .data = {0, 0, 0},
         .dx = 0,
         .dy = 0,
-        .event = false,
-        .left_button_state = false,
-        .right_button_state = false,
-        .middle_button_state = false,
-        .previous_left_button_state = false,
-        .previous_right_button_state = false,
-        .previous_middle_button_state = false,
-        .left_button_clicked = false,
-        .right_button_clicked = false,
-        .middle_button_clicked = false,
-        .left_button_released = false,
-        .right_button_released = false,
-        .middle_button_released = false
+        .event = 0,
+        .left_button_state = 0,
+        .right_button_state = 0,
+        .middle_button_state = 0,
+        .previous_left_button_state = 0,
+        .previous_right_button_state = 0,
+        .previous_middle_button_state = 0,
+        .left_button_clicked = 0,
+        .right_button_clicked = 0,
+        .middle_button_clicked = 0,
+        .left_button_released = 0,
+        .right_button_released = 0,
+        .middle_button_released = 0
     };
+
+    // Return the initialized mouse structure with default values
+    return mouse;
 }
 
 /**
@@ -125,39 +127,26 @@ int mouseread(mouse_t *mouse)
     // Read data from the mouse device file descriptor
     int bytes = read(mouse->fd, mouse->data, sizeof(mouse->data));
 
-    if (bytes > 0) {
-        // An event has occurred
-        mouse->event = true;
+    mouse->event = bytes > 0 || mouse->left_button_released || mouse->right_button_released || mouse->middle_button_released;
 
-        // Update movement offsets based on the read data
-        mouse->dx = mouse->data[1];
-        mouse->dy = mouse->data[2];
+    mouse->dx = mouse->event ? mouse->data[1] : 0;
+    mouse->dy = mouse->event ? mouse->data[2] : 0;
 
-        // Store previous button states
-        mouse->previous_left_button_state = mouse->left_button_state;
-        mouse->previous_right_button_state = mouse->right_button_state;
-        mouse->previous_middle_button_state = mouse->middle_button_state;
+    mouse->previous_left_button_state = mouse->left_button_state;
+    mouse->previous_right_button_state = mouse->right_button_state;
+    mouse->previous_middle_button_state = mouse->middle_button_state;
 
-        // Update button states based on the read data
-        mouse->left_button_state = mouse->data[0] & 0x1;
-        mouse->right_button_state = mouse->data[0] & 0x2;
-        mouse->middle_button_state = mouse->data[0] & 0x4;
+    mouse->left_button_state = mouse->event && !(mouse->dx || mouse->dy) ? (int) (mouse->data[0] & 0x1) != 0 : mouse->left_button_state;
+    mouse->right_button_state = mouse->event && !(mouse->dx || mouse->dy) ? (int) (mouse->data[0] & 0x2) != 0 : mouse->right_button_state;
+    mouse->middle_button_state = mouse->event && !(mouse->dx || mouse->dy) ? (int) (mouse->data[0] & 0x4) != 0 : mouse->middle_button_state;
 
-        // Detect button press transition (only when the button is pressed, not held)
-        mouse->left_button_clicked = !mouse->previous_left_button_state && mouse->left_button_state;
-        mouse->right_button_clicked = !mouse->previous_right_button_state && mouse->right_button_state;
-        mouse->middle_button_clicked = !mouse->previous_middle_button_state && mouse->middle_button_state;
-
-        // Detect button release transitions
-        mouse->left_button_released = mouse->previous_left_button_state && !mouse->left_button_state;
-        mouse->right_button_released = mouse->previous_right_button_state && !mouse->right_button_state;
-        mouse->middle_button_released = mouse->previous_middle_button_state && !mouse->middle_button_state;
-    } else {
-        // No data read, so no event detected
-        mouse->event = false;
-        mouse->dx = 0;
-        mouse->dy = 0;
-    }
+	mouse->left_button_clicked = !mouse->previous_left_button_state && mouse->left_button_state;
+    mouse->right_button_clicked = !mouse->previous_right_button_state && mouse->right_button_state;
+    mouse->middle_button_clicked = !mouse->previous_middle_button_state && mouse->middle_button_state;
+		
+    mouse->left_button_released = mouse->previous_left_button_state && !mouse->left_button_state;
+    mouse->right_button_released = mouse->previous_right_button_state && !mouse->right_button_state;
+    mouse->middle_button_released = mouse->previous_middle_button_state && !mouse->middle_button_state;
 
     // Return the number of bytes read or an error code
     return bytes;
@@ -184,7 +173,7 @@ int mouseread(mouse_t *mouse)
  */
 void updatemousesensitivity(mouse_t *mouse, int mx, int my)
 {
-    if(validatemouse(mouse) < 0)
+    if (validatemouse(mouse) < 0)
         return;
 
     // Adjust the movement offsets based on the sensitivity factors
