@@ -6,6 +6,7 @@
 #include <pthread.h>
 #include "../include/mouse/mouse.h"
 #include "../include/colenda/colenda.h"
+#include "../include/hexdecode/hexdecode.h"
 
 #include "night.h"
 
@@ -24,23 +25,10 @@
 #define ENTITY_SPRITE_LAYER_OFFSET 4
 
 typedef struct {
-    unsigned int r;
-    unsigned int g;
-    unsigned int b;
-} rgb_t;
-
-typedef struct {
-    unsigned int r;
-    unsigned int g;
-    unsigned int b;
-    unsigned int a;
-} rgba_t;
-
-typedef struct {
     double lastTime;
     double currentTime;
     double elapsedTime;
-} timetracker_t;
+} timer_t;
 
 typedef struct {
     double x, y;
@@ -76,12 +64,9 @@ typedef struct {
     int px, py;
 } cursor_t;
 
-rgb_t hextorgb(unsigned int hex);
-rgba_t hextorgba(unsigned int hex);
-void normalizergb(rgb_t *color);
-void normalizergba(rgba_t *color);
+
 double gettime();
-void updatetime(timetracker_t *timer);
+void updatetime(timer_t *timer);
 void updateposition(double *x, double *y, double vx, double vy, double elapsedTime);
 void updatevelocity(double *vx, double *vy, double ax, double ay, double elapsedTime);
 void updatecursor(cursor_t *cursor, mouse_t *mouse);
@@ -96,7 +81,7 @@ void initializeentitylist(int *is_entity_in_slot, size_t size);
 void initializecursor(cursor_t *cursor);
 void updatemouseandcursor(mouse_t *mouse, cursor_t *cursor);
 void createnewentity(entity_t *entities, int *is_entity_in_slot, double *count, double spawnEntitytime, double elapsed_time);
-void updateentities(FILE* gpu, entity_t *entities, int *is_entity_in_slot, timetracker_t *timer);
+void updateentities(FILE* gpu, entity_t *entities, int *is_entity_in_slot, timer_t *timer);
 void rendercursor(FILE *gpu, cursor_t *cursor);
 void handleuserinput(mouse_t *mouse, int *bullet, volatile int *running);
 void *mouse_thread_func(void *arg);
@@ -168,44 +153,6 @@ int main(void) {
     return 0;
 }
 
-rgb_t hextorgb(unsigned int hex)
-{
-    rgb_t color;
-
-    color.b = (hex >> 16) & 0xFF;
-    color.g = (hex >> 8) & 0xFF;
-    color.r = hex & 0xFF;
-
-    return color;
-}
-
-rgba_t hextorgba(unsigned int hex)
-{
-    rgba_t color;
-
-    color.a = (hex >> 24) & 0xFF;
-    color.b = (hex >> 16) & 0xFF;
-    color.g = (hex >> 8) & 0xFF;
-    color.r = hex & 0xFF;
-
-    return color;
-}
-
-void normalizergb(rgb_t *color)
-{
-    color->r /= 32;
-    color->g /= 32;
-    color->b /= 32;
-}
-
-void normalizergba(rgba_t *color)
-{
-    color->r /= 32;
-    color->g /= 32;
-    color->b /= 32;
-    color->a = (color->a > 0) ? 1 : 0;
-}
-
 double gettime()
 {
     struct timespec ts;
@@ -213,7 +160,7 @@ double gettime()
     return ts.tv_sec + ts.tv_nsec / 1e9;
 }
 
-void updatetime(timetracker_t *timer)
+void updatetime(timer_t *timer)
 {
     timer->currentTime = gettime();
     timer->elapsedTime = timer->currentTime - timer->lastTime;
@@ -379,15 +326,11 @@ void createnewentity(entity_t *entities, int *is_entity_in_slot, double *count, 
     }
 }
 
-void updateentities(FILE *gpu, entity_t *entities, int *is_entity_in_slot, timetracker_t *timer) {
+void updateentities(FILE *gpu, entity_t *entities, int *is_entity_in_slot, timer_t *timer) {
     for (int i = 0; i < MAX_ENTITIES; i++) {
         if (!is_entity_in_slot[i]) {
             continue;
         }
-
-        pthread_mutex_lock(&mouse_lock);
-        pause_mouse = 1;
-        pthread_mutex_unlock(&mouse_lock);
 
         setsprite(gpu, i + ENTITY_SPRITE_LAYER_OFFSET, 1, entities[i].position.x, entities[i].position.y, entities[i].type * 2);
 
@@ -404,10 +347,6 @@ void updateentities(FILE *gpu, entity_t *entities, int *is_entity_in_slot, timet
             deleteentity(is_entity_in_slot, i, MAX_ENTITIES);
             setsprite(gpu, i + ENTITY_SPRITE_LAYER_OFFSET, 0, 0, 0, 0);
         }
-        pthread_mutex_lock(&mouse_lock);
-        pause_mouse = 0;
-        pthread_cond_signal(&mouse_cond);
-        pthread_mutex_unlock(&mouse_lock);
     }
 }
 
@@ -475,7 +414,7 @@ void *mouse_thread_func(void *arg) {
 }
 
 void *game_thread_func(void *arg) {
-    timetracker_t timer;
+    timer_t timer;
     timer.lastTime = gettime();
 
     double count = 1;
