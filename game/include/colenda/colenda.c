@@ -149,7 +149,7 @@ int setbackground(FILE *gpu, uint8_t red, uint8_t green, uint8_t blue)
  * ESIZE if the buffer does not have enough space to store the instruction,
  * EWRITE if a write error occurs in the file.
  */
-int setsprite(FILE *gpu, uint8_t layer, bool show, uint16_t x, uint16_t y, uint16_t sprite)
+int setsprite(FILE *gpu, uint8_t layer, int show, uint16_t x, uint16_t y, uint16_t sprite)
 {
     char buffer[BUFFER_SIZE];
 
@@ -210,6 +210,41 @@ int setspritememory(FILE *gpu, uint_fast16_t address, uint_fast8_t red, uint_fas
     instruction |= (uint64_t) (red & 0x7) << 32;
     instruction |= (uint64_t) (green & 0x7) << 35;
     instruction |= (uint64_t) (blue & 0x7) << 38;
+    
+    if (copytobuffer(buffer, BUFFER_SIZE, instruction) != 0) {
+        return -ESIZE;
+    }
+    
+    return gpuwrite(gpu, buffer);
+}
+
+/**
+ * @brief Sets the color of a specific pixel in the sprite memory using a register.
+ *
+ * This function calculates the memory address based on the provided register, pixel, and then calls the setspritememory function
+ * to write the color data to the specified address in the sprite memory. The function checks for valid input values and
+ * returns an error code if necessary.
+ *
+ * @param gpu A pointer to the GPU file.
+ * @param reg The register number (0-31) representing the sprite.
+ * @param pixel The pixel index within the sprite (0-16383).
+ * @param red The red component of the color (0-7).
+ * @param green The green component of the color (0-7).
+ * @param blue The blue component of the color (0-7).
+ *
+ * @return The result of the setspritememory function call.
+ */
+int setspritememorywithreg(FILE *gpu, uint8_t reg, uint16_t pixel, uint_fast8_t red, uint_fast8_t green, uint_fast8_t blue)
+{
+    char buffer[BUFFER_SIZE];
+
+    if (reg < 0 || reg > MAX_SPRITES || pixel < 0 || pixel >= MAX_SPRITE_PIXELS) {
+        return -EINPUT;
+    }
+
+    uint16_t address = (reg * MAX_SPRITE_PIXELS) + pixel;
+
+    return setspritememory(gpu, address, red, green, blue);
 }
 
 /**

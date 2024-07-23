@@ -331,7 +331,7 @@ void clearsprites(FILE *gpu)
 void initializeentitylist(int *is_entity_in_slot, size_t size)
 {
     for (size_t i = 0; i < size; i++) {
-        is_entity_in_slot[i] = false;
+        is_entity_in_slot[i] = 0;
     }
 }
 

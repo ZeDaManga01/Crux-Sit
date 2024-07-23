@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <errno.h>
-#include <stdbool.h>
 
 #define DRIVER_NAME "/dev/colenda_driver"
 
@@ -26,13 +25,17 @@
 #define DIVIDED_SCREEN_WIDTH (SCREEN_WIDTH / BLOCK_SIZE)
 #define DIVIDED_SCREEN_HEIGHT (SCREEN_HEIGHT / BLOCK_SIZE)
 #define BUFFER_SIZE 8
+#define SPRITE_SIZE_X 20
+#define SPRITE_SIZE_Y 20
+#define MAX_SPRITE_PIXELS (SPRITE_SIZE_X * SPRITE_SIZE_Y)
+#define MAX_SPRITES 3
 
 int gpuopen(FILE **file, const char *driver_name);
 int gpuclose(FILE **file);
 int gpuwrite(FILE *file, const char *buffer);
 int copytobuffer(char *buffer, size_t size, uint64_t instruction);
 int setbackground(FILE *gpu, uint8_t red, uint8_t green, uint8_t blue);
-int setsprite(FILE *gpu, uint8_t layer, bool show, uint16_t x, uint16_t y, uint16_t sprite);
+int setsprite(FILE *gpu, uint8_t layer, int show, uint16_t x, uint16_t y, uint16_t sprite);
 int setspritememory(FILE *gpu, uint_fast16_t address, uint_fast8_t red, uint_fast8_t green, uint_fast8_t blue);
 int setpoligon(FILE *gpu, uint_fast8_t layer, uint_fast8_t type, uint16_t x, uint16_t y, uint_fast8_t red, uint_fast8_t green, uint_fast8_t blue, uint_fast8_t size);
 int setbackgroundblock(FILE *gpu, uint_fast8_t row, uint_fast8_t column, uint_fast8_t red, uint_fast8_t green, uint_fast8_t blue);
