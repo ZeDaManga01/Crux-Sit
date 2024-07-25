@@ -14,12 +14,15 @@ MOUSE_PATH = $(MOUSE_DIR)/mouse.c
 HEXDEC_DIR = $(INCLUDE_DIR)/hexdecode
 HEXDEC_PATH = $(HEXDEC_DIR)/hexdecode.c
 
+FPGA_DIR = $(INCLUDE_DIR)/fpga
+FPGA_PATH = $(FPGA_DIR)/fpga.c
+
 ASSETS_DIR = assets
 
 LD_FLAGS = -lrt -lm -lpthread
 
 # Arquivos fonte
-SOURCES = $(SRC_DIR)/main.c $(COLENDA_PATH) $(MOUSE_PATH) $(HEXDEC_PATH) $(ASSETS_DIR)/night.c \
+SOURCES = $(SRC_DIR)/main.c $(COLENDA_PATH) $(MOUSE_PATH) $(HEXDEC_PATH) $(FPGA_PATH) $(ASSETS_DIR)/night.c \
 							$(ASSETS_DIR)/day.c $(ASSETS_DIR)/bullet.c $(ASSETS_DIR)/silver.c $(ASSETS_DIR)/garlic.c \
 							$(ASSETS_DIR)/zombie.c $(ASSETS_DIR)/werewolf.c $(ASSETS_DIR)/vampire.c \
 							$(ASSETS_DIR)/aim.c $(ASSETS_DIR)/church.c
@@ -29,7 +32,7 @@ OBJECTS = $(SOURCES:.c=.o)
 
 # Compilador e flags
 CC = gcc
-CFLAGS = -I$(COLENDA_DIR) -I$(MOUSE_DIR) -I$(HEXDEC_DIR) -I$(ASSETS_DIR) -Wall -Wextra -O2 -std=c99
+CFLAGS = -I$(COLENDA_DIR) -I$(MOUSE_DIR) -I$(HEXDEC_DIR) -I$(FPGA_DIR) -I$(ASSETS_DIR) -Wall -Wextra -O2 -std=c99
 
 # Regra padrão
 all: $(TARGET)
