@@ -1,15 +1,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <time.h>
-#include <linux/time.h>
 #include <pthread.h>
+#include <sys/mman.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include "../../driver/address_map_arm.h"
 #include "../include/mouse/mouse.h"
 #include "../include/colenda/colenda.h"
 #include "../include/hexdecode/hexdecode.h"
 
 #include "../assets/day.h"
 #include "../assets/night.h"
+
+#include "../assets/church.h"
+
 #include "../assets/zombie.h"
 #include "../assets/werewolf.h"
 #include "../assets/vampire.h"
@@ -20,11 +25,20 @@
 
 #define MAX_ENTITIES 20
 #define MAX_BULLETTYPES 3
-#define BULLET_OFFSET 5
+#define MAX_LIVES 5
+
+#define ZOMBIE_POINTS 10
+#define WEREWOLF_POINTS 30
+#define VAMPIRE_POINTS 50
 
 #define ZOMBIE 0
 #define WEREWOLF 1
 #define VAMPIRE 2
+
+#define ZOMBIE_OFFSET 5
+#define WEREWOLF_OFFSET 8
+#define VAMPIRE_OFFSET 11
+#define BULLET_OFFSET 2
 
 #define NORMAL_BULLET 0
 #define SILVER_BULLET 1
@@ -33,15 +47,9 @@
 #define BULLET_SPRITE_OFFSET 1
 #define ENTITY_SPRITE_LAYER_OFFSET 3
 
-#define ZOMBIE_OFFSET 4
-#define WEREWOLF_OFFSET 7
-#define VAMPIRE_OFFSET 10
+#define LIVES_OFFSET 22
 
-typedef struct {
-    double lastTime;
-    double currentTime;
-    double elapsedTime;
-} timer_t;
+#define U_WAIT_TIME_AFTER_SHOOTING 100000
 
 typedef struct {
     int x, y;
@@ -77,8 +85,7 @@ typedef struct {
     int px, py;
 } cursor_t;
 
-double gettime();
-void updatetime(timer_t *timer);
+int getrandomnumber(int m, int n);
 void fitinscreenborder(int *n, int limit);
 void updateposition(int *x, int *y, int vx, int vy, double elapsedTime);
 void updatevelocity(int *vx, int *vy, int ax, int ay, double elapsedTime);
@@ -95,32 +102,50 @@ void initializeentitylist(int *is_entity_in_slot, size_t size);
 void initializecursor(cursor_t *cursor);
 void updatemouseandcursor(mouse_t *mouse, cursor_t *cursor);
 int createrandomentity(entity_t *entities, int *is_entity_in_slot);
-void updateentities(FILE* gpu, entity_t *entities, int *is_entity_in_slot, timer_t *timer);
+void updateentities(FILE* gpu, entity_t *entities, int *is_entity_in_slot, double period);
 void killentity(entity_t *entities, int *is_entity_in_slot, cursor_t cursor);
 void rendercursor(FILE *gpu, cursor_t cursor);
 void handleuserinput(mouse_t *mouse, int *bullet, volatile int *running);
 void *mouse_thread_func(void *arg);
 void *game_thread_func(void *arg);
+void *button_thread_func(void *arg);
+
+int FPS;
+double PERIOD;
+int U_PERIOD;
 
 int running = 1; // Usado para controlar a execução das threads
 
 int pause_mouse = 0;
 int pause_game = 0;
 int pause_entities = 0;
+
 pthread_cond_t mouse_cond = PTHREAD_COND_INITIALIZER;
 pthread_cond_t game_cond = PTHREAD_COND_INITIALIZER;
 pthread_cond_t entities_cond = PTHREAD_COND_INITIALIZER;
+
 pthread_mutex_t mouse_lock = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t game_lock = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t entities_lock = PTHREAD_MUTEX_INITIALIZER;
+
 mouse_t mouse;
 cursor_t cursor;
 
-FILE *gpu;
+FILE *gpu = NULL;
 
 int bullet = 0;
 entity_t entities[MAX_ENTITIES];
 int is_entity_in_slot[MAX_ENTITIES];
+
+int points = 0;
+int night = 0;
+
+int remaining_lives;
+
+int entities_to_kill = 30;
+int remaining_entities;
+
+volatile int *KEY_ptr;
 
 /**
  * @author G03
@@ -133,7 +158,25 @@ int is_entity_in_slot[MAX_ENTITIES];
  */
 int main(void)
 {
-    gpu = NULL;
+    FPS = 60;
+    PERIOD = 1.0/FPS;
+    U_PERIOD = PERIOD * 1000000;
+
+    int fd = -1;
+
+    if ((fd = open ("/dev/mem", (O_RDWR | O_SYNC))) == -1) {
+        printf ("ERROR: could not open \"/dev/mem\"...\n");
+        return -1;
+    }
+
+    void *LW_virtual;
+    LW_virtual = mmap(NULL, LW_BRIDGE_SPAN, (PROT_READ|PROT_WRITE), MAP_SHARED, fd, LW_BRIDGE_BASE) ;
+
+    if (LW_virtual == MAP_FAILED) {
+        printf ("ERROR: mmap() failed...\n") ;
+        close (fd) ;
+        return (-1);
+    }
 
     if (gpuopen(&gpu, DRIVER_NAME) < 0) {
         printf("Error opening GPU driver\n");
@@ -152,52 +195,56 @@ int main(void)
     initializecursor(&cursor);
     initializeentitylist(is_entity_in_slot, MAX_ENTITIES);
 
-    addsprite(gpu, aim_data[0], 0, AIM_FRAME_WIDTH, AIM_FRAME_HEIGHT);
-    addsprite(gpu, bullet_data[0], 1, BULLET_FRAME_WIDTH, BULLET_FRAME_HEIGHT);
-    addsprite(gpu, silver_data[0], 2, SILVER_FRAME_WIDTH, SILVER_FRAME_HEIGHT);
-    addsprite(gpu, garlic_data[0], 3, GARLIC_FRAME_WIDTH, GARLIC_FRAME_HEIGHT);
-    addsprite(gpu, zombie_data[0], 4, ZOMBIE_FRAME_WIDTH, ZOMBIE_FRAME_HEIGHT);
-    addsprite(gpu, zombie_data[1], 5, ZOMBIE_FRAME_WIDTH, ZOMBIE_FRAME_HEIGHT);
-    addsprite(gpu, zombie_data[2], 6, ZOMBIE_FRAME_WIDTH, ZOMBIE_FRAME_HEIGHT);
-    addsprite(gpu, werewolf_data[0], 7, WEREWOLF_FRAME_WIDTH, WEREWOLF_FRAME_HEIGHT);
-    addsprite(gpu, werewolf_data[1], 8, WEREWOLF_FRAME_WIDTH, WEREWOLF_FRAME_HEIGHT);
-    addsprite(gpu, werewolf_data[2], 9, WEREWOLF_FRAME_WIDTH, WEREWOLF_FRAME_HEIGHT);
-    addsprite(gpu, vampire_data[0], 10, VAMPIRE_FRAME_WIDTH, VAMPIRE_FRAME_HEIGHT);
+    addsprite(gpu, aim_data[AIM_FRAME], 0, AIM_FRAME_WIDTH, AIM_FRAME_HEIGHT);
+    addsprite(gpu, aim_data[SHOOT_FRAME], 1, AIM_FRAME_WIDTH, AIM_FRAME_HEIGHT);
+    addsprite(gpu, bullet_data[0], 2, BULLET_FRAME_WIDTH, BULLET_FRAME_HEIGHT);
+    addsprite(gpu, silver_data[0], 3, SILVER_FRAME_WIDTH, SILVER_FRAME_HEIGHT);
+    addsprite(gpu, garlic_data[0], 4, GARLIC_FRAME_WIDTH, GARLIC_FRAME_HEIGHT);
+    addsprite(gpu, zombie_data[0], 5, ZOMBIE_FRAME_WIDTH, ZOMBIE_FRAME_HEIGHT);
+    addsprite(gpu, zombie_data[1], 6, ZOMBIE_FRAME_WIDTH, ZOMBIE_FRAME_HEIGHT);
+    addsprite(gpu, zombie_data[2], 7, ZOMBIE_FRAME_WIDTH, ZOMBIE_FRAME_HEIGHT);
+    addsprite(gpu, werewolf_data[0], 8, WEREWOLF_FRAME_WIDTH, WEREWOLF_FRAME_HEIGHT);
+    addsprite(gpu, werewolf_data[1], 9, WEREWOLF_FRAME_WIDTH, WEREWOLF_FRAME_HEIGHT);
+    addsprite(gpu, werewolf_data[2], 10, WEREWOLF_FRAME_WIDTH, WEREWOLF_FRAME_HEIGHT);
+    addsprite(gpu, vampire_data[0], 11, VAMPIRE_FRAME_WIDTH, VAMPIRE_FRAME_HEIGHT);
 
     clearsprites(gpu);
-    clearbackground(gpu);
-    fillbackground(gpu, night_data[0], DIVIDED_SCREEN_WIDTH, DIVIDED_SCREEN_HEIGHT, NIGHT_BACKGROUND_COLOR);
+    fillbackground(gpu, church[NIGHT_FRAME], DIVIDED_SCREEN_WIDTH, DIVIDED_SCREEN_HEIGHT, NIGHT_BACKGROUND_COLOR);
 
-    pthread_t mouse_thread, game_thread;
+    pthread_t mouse_thread, game_thread, button_thread;
 
     pthread_create(&mouse_thread, NULL, mouse_thread_func, NULL);
+    pthread_create(&button_thread, NULL, button_thread_func, NULL);
     pthread_create(&game_thread, NULL, game_thread_func, (void *)gpu);
 
     pthread_join(mouse_thread, NULL);
     pthread_join(game_thread, NULL);
     
-    clearsprites(gpu);
-    clearbackground(gpu);
-    fillbackground(gpu, day_data[0], DIVIDED_SCREEN_WIDTH, DIVIDED_SCREEN_HEIGHT, DAY_BACKGROUND_COLOR);
+    if (remaining_lives) {
+        clearsprites(gpu);
+        // clearbackground(gpu);
+        fillbackground(gpu, church[DAY_FRAME], DIVIDED_SCREEN_WIDTH, DIVIDED_SCREEN_HEIGHT, DAY_BACKGROUND_COLOR);
+    } else {
+        // setbackground(gpu, 5, 0, 0);
+        fillbackground(gpu, church[NO_REMAINING_LIVES_FRAME], DIVIDED_SCREEN_WIDTH, DIVIDED_SCREEN_HEIGHT, NIGHT_BACKGROUND_COLOR);
+        printf("Você perdeu :(\n");
+    }
 
     mouseclose(&mouse);
     gpuclose(&gpu);
+    close(fd);
 
     return 0;
 }
 
-double gettime()
-{
-    struct timespec ts;
-    clock_gettime(CLOCK_MONOTONIC, &ts);
-    return ts.tv_sec + ts.tv_nsec / 1e9;
-}
 
-void updatetime(timer_t *timer)
+inline int getrandomnumber(int m, int n) 
 {
-    timer->currentTime = gettime();
-    timer->elapsedTime = timer->currentTime - timer->lastTime;
-    timer->lastTime = timer->currentTime;
+    if (m >= n) {
+        return -1;
+    }
+
+    return rand() % (n - m) + m;
 }
 
 void fitinscreenborder(int *n, int limit)
@@ -216,8 +263,7 @@ void updateposition(int *x, int *y, int vx, int vy, double elapsedTime)
 {
     *x += (int) vx * elapsedTime;
     *y += (int) vy * elapsedTime;
-
-    fitinscreenborder(y, SCREEN_HEIGHT);
+    fitinscreenborder(y, SCREEN_HEIGHT - 20);
 }
 
 void updatevelocity(int *vx, int *vy, int ax, int ay, double elapsedTime) {
@@ -306,6 +352,8 @@ void addsprite(FILE *gpu, const uint32_t *data, int reg, size_t width, size_t he
 void fillbackground(FILE *gpu, const uint32_t *data, size_t x, size_t y, uint32_t background_color)
 {
     rgba_t bg_color = normalizergba(hextorgba(background_color));
+    setbackground(gpu, bg_color.r, bg_color.g, bg_color.b);
+
     int count_background = 0;
     rgba_t color;
 
@@ -355,7 +403,7 @@ int createrandomentity(entity_t *entities, int *is_entity_in_slot)
 {
     entity_t example;
 
-    example.type = rand() % 3;
+    example.type = getrandomnumber(0, 4);
 
     example.position.x = SCREEN_WIDTH;
     example.start_position.x = example.position.x;
@@ -372,26 +420,28 @@ int createrandomentity(entity_t *entities, int *is_entity_in_slot)
 
     switch (example.type) {
         case ZOMBIE:
-            example.velocity.x = -(rand() % 100 + 50);
-            example.position.y = rand() % SCREEN_HEIGHT + (SCREEN_HEIGHT / 2);
+            example.velocity.x = -getrandomnumber(50, 101);
+            example.position.y = (getrandomnumber(SCREEN_HEIGHT / 2 + 50, SCREEN_HEIGHT - 20));
             break;
 
         case WEREWOLF:
-            example.acceleration.x = -(rand() % 100 + 50);
-            example.position.y = rand() % SCREEN_HEIGHT + (SCREEN_HEIGHT / 2);
+            example.position.y = (getrandomnumber(SCREEN_HEIGHT / 2 + 50, SCREEN_HEIGHT - 20));
             
-            if (rand() % 2 == 1) {
-                example.acceleration.x = -example.acceleration.x;
-                example.velocity.x = -(rand() % 400 + 200);
+            if (getrandomnumber(0, 2) == 1) {
+                example.acceleration.x = getrandomnumber(30, 61);
+                example.velocity.x = -getrandomnumber(300, 401);
             } else {
-                example.velocity.x = -(rand() % 150 + 50);
+                example.acceleration.x = -getrandomnumber(20, 51);
+                example.velocity.x = -getrandomnumber(100, 151);
             }
             break;
 
         case VAMPIRE:
-            example.velocity.y = rand() % 200;
+            example.position.y = (getrandomnumber(100, SCREEN_HEIGHT - 20));
+            example.start_position.y = example.position.y;
+            example.velocity.x = -(getrandomnumber(100, 201));
+            example.velocity.y = (getrandomnumber(300, 401));
             example.acceleration.y = -example.velocity.y;
-            example.position.y = rand() % SCREEN_HEIGHT + 50;
             break;
         default:
             return -1;
@@ -400,8 +450,10 @@ int createrandomentity(entity_t *entities, int *is_entity_in_slot)
     return createentity(entities, is_entity_in_slot, example, MAX_ENTITIES);
 }
 
-void updateentities(FILE *gpu, entity_t *entities, int *is_entity_in_slot, timer_t *timer)
+void updateentities(FILE *gpu, entity_t *entities, int *is_entity_in_slot, double period)
 {
+    int pos;
+    
     for (int i = 0; i < MAX_ENTITIES; i++) {
         pthread_mutex_lock(&entities_lock);
         while (pause_entities) {
@@ -414,18 +466,35 @@ void updateentities(FILE *gpu, entity_t *entities, int *is_entity_in_slot, timer
         }
 
         // Atualização de velocidade
-        updatevelocity(&entities[i].velocity.x, &entities[i].velocity.y, entities[i].acceleration.x, entities[i].acceleration.y, timer->elapsedTime);
+        updatevelocity(&entities[i].velocity.x, &entities[i].velocity.y, entities[i].acceleration.x, entities[i].acceleration.y, period);
 
         // Atualização de posição
-        updateposition(&entities[i].position.x, &entities[i].position.y, entities[i].velocity.x, entities[i].velocity.y, timer->elapsedTime);
+        updateposition(&entities[i].position.x, &entities[i].position.y, entities[i].velocity.x, entities[i].velocity.y, period);
+        pos = entities[i].position.x;
 
         switch (entities[i].type) {
             case ZOMBIE:
-                setsprite(gpu, i + ENTITY_SPRITE_LAYER_OFFSET, 1, entities[i].position.x, entities[i].position.y, ZOMBIE_OFFSET);
+                if (pos % 100 < 25) {
+                    setsprite(gpu, i + ENTITY_SPRITE_LAYER_OFFSET, 1, entities[i].position.x, entities[i].position.y, ZOMBIE_OFFSET);
+                } else if (pos % 100 < 50){
+                    setsprite(gpu, i + ENTITY_SPRITE_LAYER_OFFSET, 1, entities[i].position.x, entities[i].position.y, ZOMBIE_OFFSET + 1);
+                } else if (pos % 100 < 75) {
+                    setsprite(gpu, i + ENTITY_SPRITE_LAYER_OFFSET, 1, entities[i].position.x, entities[i].position.y, ZOMBIE_OFFSET);
+                } else {
+                    setsprite(gpu, i + ENTITY_SPRITE_LAYER_OFFSET, 1, entities[i].position.x, entities[i].position.y, ZOMBIE_OFFSET + 2);
+                }
                 break;
 
             case WEREWOLF:
-                setsprite(gpu, i + ENTITY_SPRITE_LAYER_OFFSET, 1, entities[i].position.x, entities[i].position.y, WEREWOLF_OFFSET);
+                if (pos % 100 < 25) {
+                    setsprite(gpu, i + ENTITY_SPRITE_LAYER_OFFSET, 1, entities[i].position.x, entities[i].position.y, WEREWOLF_OFFSET);
+                } else if (pos % 100 < 50){
+                    setsprite(gpu, i + ENTITY_SPRITE_LAYER_OFFSET, 1, entities[i].position.x, entities[i].position.y, WEREWOLF_OFFSET + 1);
+                } else if (pos % 100 < 75) {
+                    setsprite(gpu, i + ENTITY_SPRITE_LAYER_OFFSET, 1, entities[i].position.x, entities[i].position.y, WEREWOLF_OFFSET);
+                } else {
+                    setsprite(gpu, i + ENTITY_SPRITE_LAYER_OFFSET, 1, entities[i].position.x, entities[i].position.y, WEREWOLF_OFFSET + 2);
+                }
                 break;
 
             case VAMPIRE:
@@ -433,18 +502,19 @@ void updateentities(FILE *gpu, entity_t *entities, int *is_entity_in_slot, timer
                 break;
         }
 
-        if (entities[i].type == VAMPIRE && 
-            ((entities[i].position.y > entities[i].start_position.y && entities[i].acceleration.y > 0) || 
-             (entities[i].position.y < entities[i].start_position.y && entities[i].acceleration.y < 0))) {
+        if (entities[i].type == VAMPIRE && \
+            ((entities[i].acceleration.y < 0 && entities[i].position.y < entities[i].start_position.y) || \
+            (entities[i].acceleration.y > 0 && entities[i].position.y > entities[i].start_position.y))) {
+            
             entities[i].acceleration.y = -entities[i].acceleration.y;
         }
 
         if (entities[i].position.x < 0) {
             deleteentity(is_entity_in_slot, i, MAX_ENTITIES);
-            pthread_mutex_unlock(&entities_lock);
-            
             setsprite(gpu, i + ENTITY_SPRITE_LAYER_OFFSET, 0, 0, 0, 0);
-            continue;
+            setsprite(gpu, LIVES_OFFSET + (remaining_lives - 1), 0, 0, 0, 0);
+            remaining_lives--;
+            printf("Você perdeu uma vida! Vidas restantes: %d\n", remaining_lives);
         }
 
         pthread_mutex_unlock(&entities_lock);
@@ -472,14 +542,40 @@ void killentity(entity_t *entities, int *is_entity_in_slot, cursor_t cursor)
         if (checkcollision(cursor.x, cursor.y, entities[i].position.x, entities[i].position.y, 20, 20, entities[i].hitbox.size_x, entities[i].hitbox.size_y) && bullet == entities[i].type) {
             pthread_mutex_lock(&entities_lock);
             pause_entities = 1;
-            pthread_mutex_unlock(&entities_lock);     
+            pthread_mutex_unlock(&entities_lock);
 
+            pthread_mutex_lock(&game_lock);
+            pause_game = 1;
+            pthread_mutex_unlock(&game_lock); 
+
+            setsprite(gpu, 1, 1, cursor.x, cursor.y, 1);
             deleteentity(is_entity_in_slot, i, MAX_ENTITIES);
+            usleep(U_WAIT_TIME_AFTER_SHOOTING);
 
             pthread_mutex_lock(&entities_lock);
             pause_entities = 0;
             pthread_cond_signal(&entities_cond);
             pthread_mutex_unlock(&entities_lock);
+
+            pthread_mutex_lock(&game_lock);
+            pause_game = 0;
+            pthread_mutex_unlock(&game_lock); 
+
+            switch (entities[i].type) {
+                case ZOMBIE:
+                    points += ZOMBIE_POINTS;
+                    break;
+                case WEREWOLF:
+                    points += WEREWOLF_POINTS;
+                    break;
+                case VAMPIRE:
+                    points += VAMPIRE_POINTS;
+                default:
+                    break;
+            }
+
+            remaining_entities--;
+            printf("Remaining: %d\n", remaining_entities);
 
             setsprite(gpu, i + ENTITY_SPRITE_LAYER_OFFSET, 0, 0, 0, 0);
             break;
@@ -501,6 +597,14 @@ void handleuserinput(mouse_t *mouse, int *bullet, volatile int *running) {
     }
 }
 
+void *button_thread_func(void *arg) {
+    while (running) {
+        
+    }
+
+    return NULL;
+}
+
 void *mouse_thread_func(void *arg) {
     while (running) {
         pthread_mutex_lock(&mouse_lock);
@@ -510,7 +614,6 @@ void *mouse_thread_func(void *arg) {
         pthread_mutex_unlock(&mouse_lock);
 
         updatemouseandcursor(&mouse, &cursor);
-        printf("%d %d %d %d\n", cursor.x, cursor.y, mouse.dx, mouse.dy);
         handleuserinput(&mouse, &bullet, &running);
     }
 
@@ -518,11 +621,15 @@ void *mouse_thread_func(void *arg) {
 }
 
 void *game_thread_func(void *arg) {
-    timer_t timer;
-    timer.lastTime = gettime();
-
     double count = 0;
     double spawnentitytime = 1;
+
+    remaining_entities = entities_to_kill;
+    remaining_lives = MAX_LIVES;
+
+    for (int i = 0; i < MAX_LIVES; i++) {
+        setsprite(gpu, i + LIVES_OFFSET, 1, i * 20, SCREEN_HEIGHT - 20, 15);
+    }
 
     while (running) {
         pthread_mutex_lock(&game_lock);
@@ -531,20 +638,22 @@ void *game_thread_func(void *arg) {
         }
         pthread_mutex_unlock(&game_lock);
 
-        updatetime(&timer);
+        if (!remaining_lives || !remaining_entities) {
+            running = 0;
+        }
 
         if (count > spawnentitytime) {
             createrandomentity(entities, is_entity_in_slot);
             count = 0;
         } else {
-            count += timer.elapsedTime;
+            count += PERIOD;
         }
         
-        updateentities(gpu, entities, is_entity_in_slot, &timer);
+        updateentities(gpu, entities, is_entity_in_slot, PERIOD);
         renderhudsprites(gpu, bullet);
         rendercursor(gpu, cursor);
 
-        usleep(10000);
+        usleep(U_PERIOD);
     }
 
     return NULL;
