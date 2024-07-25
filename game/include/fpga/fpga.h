@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/mman.h>
-#include "../../driver/address_map_arm.h"
+#include "../address_map_arm.h"
 
 #define SUCCESS 0
 #define ERROR -1
@@ -19,10 +19,10 @@ typedef struct fpga_map_arm_t{
     void *mapped_ptr;
 
     volatile int *KEY_ptr;
-}fpga_map_arm_t;
+} fpga_map_arm_t;
 
 int fpgainit(fpga_map_arm_t *fpga_map);
-int fpgaclose(fpga_map_arm_t *fpga_map);
+int fpgaclose();
 void readkeys(fpga_map_arm_t fpga_map, int *pressed_keys, size_t size);
 
 #endif

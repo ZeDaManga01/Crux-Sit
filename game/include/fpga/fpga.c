@@ -15,13 +15,14 @@ int fpgainit(fpga_map_arm_t *fpga_map)
 {
     // Try to open and return an error code if it fails
     fpga_map->fd = open("/dev/mem", O_RDWR | O_SYNC);
+
     if (fpga_map->fd == -1) {
         printf("Couldn't open /dev/mem");
         return -1;
     }
 
     // Map the physical address range to virtual address space
-    fpga_map->mapped_ptr = mmap(NULL, LW_BRIDGE_SPAN, (PROT_READ|PROT_WRITE), MAP_SHARED, fpga_map->fd, LW_BRIDGE_BASE);
+    fpga_map->mapped_ptr = mmap(NULL, LW_BRIDGE_SPAN, (PROT_READ | PROT_WRITE), MAP_SHARED, fpga_map->fd, LW_BRIDGE_BASE);
 
     // Check if the mapping was successful
     if (fpga_map->mapped_ptr == MAP_FAILED) {
@@ -31,8 +32,8 @@ int fpgainit(fpga_map_arm_t *fpga_map)
     }
     
     // Set up the pointers to the registers in the FPGA
-    fpga_map->KEY_ptr = (volatile int *) (fpga_map->mapped_ptr + KEY_BASE);
-    
+    fpga_map->KEY_ptr = (int *) (fpga_map->mapped_ptr + KEY_BASE);
+
     return SUCCESS;
 }
 
@@ -50,7 +51,7 @@ int fpgainit(fpga_map_arm_t *fpga_map)
 int fpgaclose(fpga_map_arm_t *fpga_map)
 {
     // Try to unmap and return an error code if it fails
-    if (munmap(fpga_map->mapped_ptr, sizeof(volatile int) < 0)) {
+    if (munmap(fpga_map->mapped_ptr, LW_BRIDGE_SPAN) != 0) {
         printf("Couldn't munmap /dev/mem");
         return ERROR;
     }
@@ -80,12 +81,9 @@ int fpgaclose(fpga_map_arm_t *fpga_map)
  * initialized and that the size of the pressed_keys array is equal to the number of buttons on the FPGA.
  */
 void readkeys(fpga_map_arm_t fpga_map, int *pressed_keys, size_t size) {
-    // Read the inverted bits of the keys
-    int aux = ~*fpga_map.KEY_ptr;
-
     // Shift and mask to get the actual button states (pressed or not)
-    for (int i = 0; i < size; i++) {
+    for (size_t i = 0; i < size; i++) {
         // Store the pressed state in the keys array
-        pressed_keys[i] = (aux >> i) & 1;
+        pressed_keys[i] = (~*fpga_map.KEY_ptr >> i) & 1;
     }
 }

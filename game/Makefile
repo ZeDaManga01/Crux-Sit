@@ -25,7 +25,7 @@ LD_FLAGS = -lrt -lm -lpthread
 SOURCES = $(SRC_DIR)/main.c $(COLENDA_PATH) $(MOUSE_PATH) $(HEXDEC_PATH) $(FPGA_PATH) $(ASSETS_DIR)/night.c \
 							$(ASSETS_DIR)/day.c $(ASSETS_DIR)/bullet.c $(ASSETS_DIR)/silver.c $(ASSETS_DIR)/garlic.c \
 							$(ASSETS_DIR)/zombie.c $(ASSETS_DIR)/werewolf.c $(ASSETS_DIR)/vampire.c \
-							$(ASSETS_DIR)/aim.c $(ASSETS_DIR)/church.c
+							$(ASSETS_DIR)/aim.c $(ASSETS_DIR)/church.c $(ASSETS_DIR)/main_menu_realistic.c
 
 # Arquivos objeto
 OBJECTS = $(SOURCES:.c=.o)

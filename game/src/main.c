@@ -14,6 +14,7 @@
 #include "../assets/day.h"
 #include "../assets/night.h"
 
+#include "../assets/main_menu_realistic.h"
 #include "../assets/church.h"
 
 #include "../assets/zombie.h"
@@ -148,8 +149,11 @@ int night = 0;
 
 int remaining_lives;
 
-int entities_to_kill = 30;
+int entities_to_kill = 40;
 int remaining_entities;
+
+volatile int pause_code = FALSE;
+volatile int stage = 0;  
 
 /**
  * @author G03
@@ -185,8 +189,6 @@ int main(void)
     PERIOD = 1.0/FPS;
     U_PERIOD = PERIOD * 1000000;
 
-    initializeentitylist(is_entity_in_slot, MAX_ENTITIES);
-
     // Add the sprites to the sprite memory
     addsprite(gpu, aim_data[AIM_FRAME], 0, AIM_FRAME_WIDTH, AIM_FRAME_HEIGHT);
     addsprite(gpu, aim_data[SHOOT_FRAME], 1, AIM_FRAME_WIDTH, AIM_FRAME_HEIGHT);
@@ -201,10 +203,6 @@ int main(void)
     addsprite(gpu, werewolf_data[2], 10, WEREWOLF_FRAME_WIDTH, WEREWOLF_FRAME_HEIGHT);
     addsprite(gpu, vampire_data[0], 11, VAMPIRE_FRAME_WIDTH, VAMPIRE_FRAME_HEIGHT);
 
-    // Clear the screen and fill it with the selected background
-    clearsprites(gpu);
-    fillbackground(gpu, church[NIGHT_FRAME], DIVIDED_SCREEN_WIDTH, DIVIDED_SCREEN_HEIGHT, NIGHT_BACKGROUND_COLOR);
-
     pthread_t mouse_thread, game_thread, button_thread;
 
     pthread_create(&mouse_thread, NULL, mouse_thread_func, NULL);
@@ -212,17 +210,8 @@ int main(void)
     pthread_create(&game_thread, NULL, game_thread_func, (void *)gpu);
 
     pthread_join(mouse_thread, NULL);
+    pthread_join(button_thread, NULL);
     pthread_join(game_thread, NULL);
-    
-    if (remaining_lives) {
-        clearsprites(gpu);
-        // clearbackground(gpu);
-        fillbackground(gpu, church[DAY_FRAME], DIVIDED_SCREEN_WIDTH, DIVIDED_SCREEN_HEIGHT, DAY_BACKGROUND_COLOR);
-    } else {
-        // setbackground(gpu, 5, 0, 0);
-        fillbackground(gpu, church[NO_REMAINING_LIVES_FRAME], DIVIDED_SCREEN_WIDTH, DIVIDED_SCREEN_HEIGHT, NIGHT_BACKGROUND_COLOR);
-        printf("Você perdeu :(\n");
-    }
 
     mouseclose(&mouse);
     gpuclose(&gpu);
@@ -445,6 +434,8 @@ void changebullettype(int *bullet)
  */
 void clearbackground(FILE *gpu)
 {
+    setbackground(gpu, 0, 0, 0);
+
     for (int i = 0; i < 60; i++) {
         for (int j = 0; j < 80; j++) {
             setbackgroundblock(gpu, j, i, 6, 7, 7);
@@ -708,7 +699,6 @@ void updateentities(FILE *gpu, entity_t *entities, int *is_entity_in_slot, doubl
             setsprite(gpu, i + ENTITY_SPRITE_LAYER_OFFSET, FALSE, 0, 0, 0);
             setsprite(gpu, LIVES_OFFSET + (remaining_lives - 1), FALSE, 0, 0, 0);
             remaining_lives--;
-            printf("Você perdeu uma vida! Vidas restantes: %d\n", remaining_lives);
         }
 
         pthread_mutex_unlock(&entities_lock);
@@ -778,8 +768,7 @@ void killentity(entity_t *entities, int *is_entity_in_slot, cursor_t cursor)
             pthread_mutex_unlock(&game_lock); 
 
             setsprite(gpu, 1, 1, cursor.x, cursor.y, 1);
-            deleteentity(is_entity_in_slot, i, MAX_ENTITIES);
-            usleep(U_WAIT_TIME_AFTER_SHOOTING);
+            usleep(100000);
 
             pthread_mutex_lock(&entities_lock);
             pause_entities = 0;
@@ -788,7 +777,11 @@ void killentity(entity_t *entities, int *is_entity_in_slot, cursor_t cursor)
 
             pthread_mutex_lock(&game_lock);
             pause_game = 0;
+            pthread_cond_signal(&game_cond);
             pthread_mutex_unlock(&game_lock); 
+
+            remaining_entities--;
+            deleteentity(is_entity_in_slot, i, MAX_ENTITIES);
 
             switch (entities[i].type) {
                 case ZOMBIE:
@@ -802,9 +795,6 @@ void killentity(entity_t *entities, int *is_entity_in_slot, cursor_t cursor)
                 default:
                     break;
             }
-
-            remaining_entities--;
-            printf("Remaining: %d\n", remaining_entities);
 
             setsprite(gpu, i + ENTITY_SPRITE_LAYER_OFFSET, 0, 0, 0, 0);
             break;
@@ -832,26 +822,81 @@ void handleuserinput(mouse_t *mouse, int *bullet, volatile int *running) {
     if (mouse->right_button_clicked) {
         changebullettype(bullet);
     }
-
-    if (mouse->middle_button_released) {
-        *running = 0;
-    }
 }
 
 // Placeholder for the button thread
 void *button_thread_func(void *arg) {
     size_t size = 4;
-    int keys[size];
+    int keys_state[size];
+    int previous_keys[size];
+    int keys_pressed[size];
+
+    readkeys(fpga_map, keys_state, size);
 
     while (running) {
-        readkeys(fpga_map, keys, size);
-
         for (size_t i = 0; i < size; i++) {
-            if (keys[i]) {
-                printf("Pressed key: %d\n", i);
+            keys_pressed[i] = !previous_keys[i] && keys_state[i];
+            previous_keys[i] = keys_state[i];
+        }
+
+        if (keys_pressed[0]) {
+            switch (stage) {
+                case 0:
+                    stage = 1;
+                    break;
+                case 1:
+                    stage = 0;
+                    break;
+                default:
+                    stage = 0;
+                    break;
             }
         }
+
+        if (keys_pressed[1] == TRUE && pause_code == FALSE) {
+            pthread_mutex_lock(&game_lock);
+            pause_game = TRUE;
+            pthread_mutex_unlock(&game_lock);
+
+            pthread_mutex_lock(&mouse_lock);
+            pause_mouse = TRUE;
+            pthread_mutex_unlock(&mouse_lock);
+
+            pause_code = TRUE;
+        } else if (keys_pressed[1] == TRUE && pause_code == TRUE) {
+            pthread_mutex_lock(&game_lock);
+            pause_game = FALSE;
+            pthread_mutex_unlock(&game_lock);
+            pthread_cond_signal(&game_cond);
+
+            pthread_mutex_lock(&mouse_lock);
+            pause_mouse = FALSE;
+            pthread_mutex_unlock(&mouse_lock);
+            pthread_cond_signal(&mouse_cond);
+
+            pause_code = FALSE;
+        }
+
+        if (keys_pressed[2]) {
+            pthread_mutex_lock(&game_lock);
+            pause_game = FALSE;
+            pthread_mutex_unlock(&game_lock);
+            pthread_cond_signal(&game_cond);
+
+            pthread_mutex_lock(&mouse_lock);
+            pause_mouse = FALSE;
+            pthread_mutex_unlock(&mouse_lock);
+            pthread_cond_signal(&mouse_cond);
+
+            pause_code = FALSE;
+
+            running = FALSE;
+        }
+
+        readkeys(fpga_map, keys_state, size);
     }
+
+    
 
     return NULL;
 }
@@ -895,37 +940,79 @@ void *game_thread_func(void *arg) {
     double count = 0;
     double spawnentitytime = 1;
 
-    remaining_entities = entities_to_kill;
-    remaining_lives = MAX_LIVES;
-
-    for (int i = 0; i < MAX_LIVES; i++) {
-        setsprite(gpu, i + LIVES_OFFSET, 1, i * 20, SCREEN_HEIGHT - 20, 15);
-    }
-
     while (running) {
-        pthread_mutex_lock(&game_lock);
-        while(pause_game) {
-            pthread_cond_wait(&game_cond, &game_lock);
-        }
-        pthread_mutex_unlock(&game_lock);
+        clearsprites(gpu);
 
-        if (!remaining_lives || !remaining_entities) {
-            running = 0;
-        }
+        switch (stage) {
+            case 0:
+                fillbackground(gpu, main_menu_realistic[0], DIVIDED_SCREEN_WIDTH, DIVIDED_SCREEN_HEIGHT, 0);
+                while (stage == 0 && running == TRUE) {
+                    usleep(U_PERIOD);
+                }
+                break;
 
-        if (count > spawnentitytime) {
-            createrandomentity(entities, is_entity_in_slot);
-            count = 0;
-        } else {
-            count += PERIOD;
-        }
-        
-        updateentities(gpu, entities, is_entity_in_slot, PERIOD);
-        renderhudsprites(gpu, bullet);
-        rendercursor(gpu, cursor);
+            case 1:
+                for (int i = 0; i < MAX_LIVES; i++) {
+                    setsprite(gpu, i + LIVES_OFFSET, 1, i * 20, SCREEN_HEIGHT - 20, 15);
+                }
 
-        usleep(U_PERIOD);
+                fillbackground(gpu, church[NIGHT_FRAME], DIVIDED_SCREEN_WIDTH, DIVIDED_SCREEN_HEIGHT, NIGHT_BACKGROUND_COLOR);
+                initializeentitylist(is_entity_in_slot, MAX_ENTITIES);
+
+                count = 0;
+                remaining_entities = entities_to_kill;
+                remaining_lives = MAX_LIVES;
+
+                while (stage == 1 && running == TRUE) {
+                    pthread_mutex_lock(&game_lock);
+                    while (pause_game) {
+                        pthread_cond_wait(&game_cond, &game_lock);
+                    }
+                    pthread_mutex_unlock(&game_lock);
+
+                    if (!remaining_entities) {
+                        stage = 2;
+                        break;
+                    }
+
+                    if (!remaining_lives) {
+                        stage = 3;
+                        break;
+                    }
+
+                    if (count > spawnentitytime) {
+                        createrandomentity(entities, is_entity_in_slot);
+                        count = 0;
+                        spawnentitytime = 1;
+                    } else {
+                        count += PERIOD;
+                    }
+                    
+                    updateentities(gpu, entities, is_entity_in_slot, PERIOD);
+                    renderhudsprites(gpu, bullet);
+                    rendercursor(gpu, cursor);
+                    usleep(U_PERIOD);
+                }
+                break;
+            case 2:
+                fillbackground(gpu, church[DAY_FRAME], DIVIDED_SCREEN_WIDTH, DIVIDED_SCREEN_HEIGHT, DAY_BACKGROUND_COLOR);
+                setsprite(gpu, 1, FALSE, 0, 0, 0);
+                sleep(3);
+                stage = 0;
+                break;
+            case 3:
+                fillbackground(gpu, church[NO_REMAINING_LIVES_FRAME], DIVIDED_SCREEN_WIDTH, DIVIDED_SCREEN_HEIGHT, NIGHT_BACKGROUND_COLOR);
+                sleep(3);
+                stage = 0;
+                break;
+            default:
+                running = FALSE;
+                break;
+        }
     }
+
+    clearsprites(gpu);
+    clearbackground(gpu);
 
     return NULL;
 }
