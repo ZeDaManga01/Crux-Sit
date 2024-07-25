@@ -39,5 +39,8 @@ rgba_t normalizergba(rgba_t color)
     color.b /= 32;
     color.a = (color.a > 0) ? 1 : 0;
 
+    if (color.r == 6 && color.g == 7 && color.b == 7)
+        color.r++;
+
     return color;
 }
