@@ -5,7 +5,7 @@
 
 O jogo apresenta três tipos de monstros: zumbis, lobisomens e vampiros. Cada tipo de monstro possui atributos únicos que influenciam sua movimentação e exigem diferentes tipos de munição para serem derrotados: bala normal para zumbis, bala de prata para lobisomens e dente de alho para vampiros.
 
-Os zumbis movem-se lentamente, enquanto os lobisomens são rápidos e os vampiros exibem um movimento senoidal, desafiando a precisão do jogador. A mecânica do jogo é desenhada de forma a exigir habilidade e estratégia, pois cada monstro precisa ser abatido com a munição correta para evitar que alcancem a vila. O jogador possui três vidas, perdendo uma sempre que um monstro consegue atravessar a defesa. Os pontos são acumulados conforme os monstros são derrotados, e a rodada termina com o amanhecer.
+Os zumbis movem-se lentamente, enquanto os lobisomens são rápidos e os vampiros exibem um movimento senoidal, desafiando a precisão do jogador. A mecânica do jogo é desenhada de forma a exigir habilidade e estratégia, pois cada monstro precisa ser abatido com a munição correta para evitar que alcancem a vila. O jogador possui cinco vidas, perdendo uma sempre que um monstro consegue atravessar a defesa. Os pontos são acumulados conforme os monstros são derrotados, e a rodada termina com o amanhecer.
 
 A importância de escrever um driver para a GPU CoLenda reside na capacidade de explorar ao máximo o potencial da FPGA DE1-SoC, unindo o conhecimento adquirido sobre como o hardware influencia o software no produto final.
 
@@ -40,7 +40,6 @@ A importância de escrever um driver para a GPU CoLenda reside na capacidade de 
         <li><a href="#kit_placa"> Kit de Desenvolvimento DE1-SoC</a></li>
         <li><a href="#comp_u">  Componentes Utilizados</a></li>
         <li><a href="#metodo"> Metodologia</a></li>
-        <li><a href="#dinamic"> Dinâmica do jogo</a></li>
         <li><a href="#test"> Testes</a></li>
         <li><a href="#resultconcl"> Resultados e conclusão</a></li>
         <li><a href="#makefile"> Instruções de execução</a></li>
@@ -122,6 +121,10 @@ O transceptor Ethernet também suporta interface RGMII MAC.
 
 O monitor utilizado no projeto foi o DELL M782p, um modelo CRT. Esse tipo de monitor utiliza um tubo de raios catódicos (CRT) para exibir imagens. O DELL M782p possui uma tela de visualização de 17 polegadas e uma resolução máxima de 1280x1024 pixels. Ele oferece uma interface VGA para conexão com o computador ou placa de desenvolvimento. Os monitores CRT são conhecidos por sua reprodução de cores vibrantes e tempos de resposta rápidos, tornando-os uma escolha adequada para projetos que exigem interação em tempo real, como jogos e simulações.
 
+### Conector VGA
+
+O padrão VGA (Video Graphics Array) é uma tecnologia de exibição de vídeo podendo fornecer uma resolução de 640x480 pixels com 16 cores ou 256 cores em resoluções menores. VGA utiliza sinais analógicos para transmitir informações de vídeo, incluindo sinais de sincronização horizontal e vertical (hsync e vsync), que coordenam a exibição da imagem na tela.
+
 ### GPU
 
 Unidade de processamento gráfico, também conhecida como GPU, é um componente eletrônico projetado para acelerar tarefas relacionadas à computação gráfica e ao processamento de imagens em uma ampla gama de dispositivos, incluindo placas de vídeo, placas-mãe, smartphones e computadores pessoais (PCs). A capacidade da GPU de realizar cálculos matemáticos complexos de forma rápida e eficiente reduz significativamente o tempo necessário para que um computador execute uma variedade de programas
@@ -153,10 +156,6 @@ Essa lógica faz com que o monstro alterne sua direção vertical sempre que ult
 ### Código
 
 O jogo foi dividido em threads, a fim de tornar a verificação dos botões e movimentos do mouse em paralelo, consequentemente aumentando o desempenho.
-
-<div id="dinamic"> 
-<h2> Dinâmica do jogo</h2>
-<div align="justify">
 
 <div id="test"> 
 <h2> Testes</h2>
