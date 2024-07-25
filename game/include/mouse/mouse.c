@@ -136,9 +136,9 @@ int mouseread(mouse_t *mouse)
     mouse->previous_right_button_state = mouse->right_button_state;
     mouse->previous_middle_button_state = mouse->middle_button_state;
 
-    mouse->left_button_state = mouse->event && !(mouse->dx || mouse->dy) ? (int) (mouse->data[0] & 0x1) != 0 : mouse->left_button_state;
-    mouse->right_button_state = mouse->event && !(mouse->dx || mouse->dy) ? (int) (mouse->data[0] & 0x2) != 0 : mouse->right_button_state;
-    mouse->middle_button_state = mouse->event && !(mouse->dx || mouse->dy) ? (int) (mouse->data[0] & 0x4) != 0 : mouse->middle_button_state;
+    mouse->left_button_state = mouse->event ? (int) (mouse->data[0] & 0x1) != 0 : mouse->left_button_state;
+    mouse->right_button_state = mouse->event ? (int) (mouse->data[0] & 0x2) != 0 : mouse->right_button_state;
+    mouse->middle_button_state = mouse->event ? (int) (mouse->data[0] & 0x4) != 0 : mouse->middle_button_state;
 
 	mouse->left_button_clicked = !mouse->previous_left_button_state && mouse->left_button_state;
     mouse->right_button_clicked = !mouse->previous_right_button_state && mouse->right_button_state;
