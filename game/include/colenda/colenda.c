@@ -236,12 +236,6 @@ int setspritememory(FILE *gpu, uint_fast16_t address, uint_fast8_t red, uint_fas
  */
 int setspritememorywithreg(FILE *gpu, uint8_t reg, uint16_t pixel, uint_fast8_t red, uint_fast8_t green, uint_fast8_t blue)
 {
-    char buffer[BUFFER_SIZE];
-
-    if (reg < 0 || reg > MAX_SPRITES || pixel < 0 || pixel >= MAX_SPRITE_PIXELS) {
-        return -EINPUT;
-    }
-
     uint16_t address = (reg * MAX_SPRITE_PIXELS) + pixel;
 
     return setspritememory(gpu, address, red, green, blue);
