@@ -34,6 +34,13 @@ int fpgainit(fpga_map_arm_t *fpga_map)
     // Set up the pointers to the registers in the FPGA
     fpga_map->KEY_ptr = (int *) (fpga_map->mapped_ptr + KEY_BASE);
 
+    fpga_map->HEX5_ptr = (int *) (fpga_map->mapped_ptr + HEX5_BASE);
+    fpga_map->HEX4_ptr = (int *) (fpga_map->mapped_ptr + HEX4_BASE);
+    fpga_map->HEX3_ptr = (int *) (fpga_map->mapped_ptr + HEX3_BASE);
+    fpga_map->HEX2_ptr = (int *) (fpga_map->mapped_ptr + HEX2_BASE);
+    fpga_map->HEX1_ptr = (int *) (fpga_map->mapped_ptr + HEX1_BASE);
+    fpga_map->HEX0_ptr = (int *) (fpga_map->mapped_ptr + HEX0_BASE);
+
     return SUCCESS;
 }
 
@@ -80,10 +87,64 @@ int fpgaclose(fpga_map_arm_t *fpga_map)
  * @warning This function assumes that the fpga_map structure is properly 
  * initialized and that the size of the pressed_keys array is equal to the number of buttons on the FPGA.
  */
-void readkeys(fpga_map_arm_t fpga_map, int *pressed_keys, size_t size) {
+void readkeys(fpga_map_arm_t fpga_map, int *pressed_keys, size_t size)
+{
     // Shift and mask to get the actual button states (pressed or not)
     for (size_t i = 0; i < size; i++) {
         // Store the pressed state in the keys array
         pressed_keys[i] = (~*fpga_map.KEY_ptr >> i) & 1;
+    }
+}
+
+int numbertodigit (int number) {
+    switch (number) {
+        case 0:
+            return 0b0111111;
+        case 1:
+            return 0b0000110;
+        case 2:
+            return 0b1011011;
+        case 3:
+            return 0b1001111;
+        case 4:
+            return 0b1100110;
+        case 5:
+            return 0b1101101;
+        case 6:
+            return 0b1111101;
+        case 7:
+            return 0b0000111;
+        case 8:
+            return 0b1111111;
+        case 9:
+            return 0b1101111;
+        default:
+            return 0;
+    }
+}
+
+void setdigit(fpga_map_arm_t fpga_map, int number, int hex)
+{
+    switch (hex) {
+        case 0:
+            *fpga_map.HEX0_ptr = ~numbertodigit(number);
+            break;
+        case 1:
+            *fpga_map.HEX1_ptr = ~numbertodigit(number);
+            break;
+        case 2:
+            *fpga_map.HEX2_ptr = ~numbertodigit(number);
+            break;
+        case 3:
+            *fpga_map.HEX3_ptr = ~numbertodigit(number);
+            break;
+        case 4:
+            *fpga_map.HEX4_ptr = ~numbertodigit(number);
+            break;
+        case 5:
+            *fpga_map.HEX5_ptr = ~numbertodigit(number);
+            break;
+        default:
+            return;
     }
 }

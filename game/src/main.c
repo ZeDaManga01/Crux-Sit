@@ -34,9 +34,9 @@
 #define MAX_BULLETTYPES 3
 #define MAX_LIVES 5
 
-#define ZOMBIE_POINTS 10
-#define WEREWOLF_POINTS 30
-#define VAMPIRE_POINTS 50
+#define ZOMBIE_POINTS 100
+#define WEREWOLF_POINTS 300
+#define VAMPIRE_POINTS 500
 
 #define ZOMBIE 0
 #define WEREWOLF 1
@@ -112,6 +112,7 @@ void updateentities(FILE* gpu, entity_t *entities, int *is_entity_in_slot, doubl
 void killentity(entity_t *entities, int *is_entity_in_slot, cursor_t cursor);
 void rendercursor(FILE *gpu, cursor_t cursor);
 void handleuserinput(mouse_t *mouse, int *bullet, volatile int *running);
+void numbertohex(fpga_map_arm_t fpga_map, int number);
 void *mouse_thread_func(void *arg);
 void *game_thread_func(void *arg);
 void *button_thread_func(void *arg);
@@ -802,6 +803,23 @@ void killentity(entity_t *entities, int *is_entity_in_slot, cursor_t cursor)
     }
 }
 
+void numbertohex(fpga_map_arm_t fpga_map, int number)
+{
+    for (int i = 0; i < 6; i++)
+    {
+        setdigit(fpga_map, number % 10, i);
+        number /= 10;
+    }
+}
+
+void cleardisplay(fpga_map_arm_t fpga_map)
+{
+    for (int i = 0; i < 6; i++)
+    {
+        setdigit(fpga_map, -1, i);
+    }
+}
+
 /**
  * @brief Handles user input related to the game.
  *
@@ -940,6 +958,8 @@ void *game_thread_func(void *arg) {
     double count = 0;
     double spawnentitytime = 1;
 
+    cleardisplay(fpga_map);
+
     while (running) {
         clearsprites(gpu);
 
@@ -955,13 +975,13 @@ void *game_thread_func(void *arg) {
                 for (int i = 0; i < MAX_LIVES; i++) {
                     setsprite(gpu, i + LIVES_OFFSET, 1, i * 20, SCREEN_HEIGHT - 20, 15);
                 }
-
                 fillbackground(gpu, church[NIGHT_FRAME], DIVIDED_SCREEN_WIDTH, DIVIDED_SCREEN_HEIGHT, NIGHT_BACKGROUND_COLOR);
                 initializeentitylist(is_entity_in_slot, MAX_ENTITIES);
 
                 count = 0;
                 remaining_entities = entities_to_kill;
                 remaining_lives = MAX_LIVES;
+                points = 0;
 
                 while (stage == 1 && running == TRUE) {
                     pthread_mutex_lock(&game_lock);
@@ -979,6 +999,8 @@ void *game_thread_func(void *arg) {
                         stage = 3;
                         break;
                     }
+
+                    numbertohex(fpga_map, points);
 
                     if (count > spawnentitytime) {
                         createrandomentity(entities, is_entity_in_slot);
@@ -1011,6 +1033,7 @@ void *game_thread_func(void *arg) {
         }
     }
 
+    cleardisplay(fpga_map);
     clearsprites(gpu);
     clearbackground(gpu);
 
