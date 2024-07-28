@@ -107,9 +107,10 @@ Os zumbis movem-se lentamente, enquanto os lobisomens são rápidos e os vampiro
 
   Todas as conexões são estabelecidas através do dispositivo Cyclone V SoC FPGA para fornecer flexibilidade máxima aos usuários. Os usuários podem configurar o FPGA para implementar qualquer projeto de sistema.
 
-  <div style="text-align: center;">
+  <div align="center">
   <figure>
-    <img src="/docs/img/de1-soc-diagram.jpeg" />
+    <img src="/docs/img/de1-soc-diagram.jpeg">
+    <br>
     <figcaption> Figura 2: Diagrama do Kit de Desenvolvimento DE1-SoC </figcaption>
   </figure>
   </div>
