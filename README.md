@@ -80,10 +80,12 @@ Os zumbis movem-se lentamente, enquanto os lobisomens são rápidos e os vampiro
 
   O Kit de Desenvolvimento DE1-SoC apresenta uma plataforma robusta de design de *hardware* construída em torno do *Altera FPGA System-on-Chip* (SoC), que combina os mais recentes núcleos incorporados Cortex-A9 *dual-core* com lógica programável líder do setor para máxima flexibilidade de projeto.
 
-  <figure align="center">
-    <img src="/docs/img/de1-soc.jpeg" />
+  <div style="text-align: center;">
+  <figure>
+    <img src="/docs/img/de1-soc.jpeg"/>
     <figcaption> Figura 1: Kit de Desenvolvimento FPGA DE1-SoC </figcaption>
   </figure>
+  </div>
 
   #### 2.3.1. ARM CORTEX A9
 
@@ -105,10 +107,12 @@ Os zumbis movem-se lentamente, enquanto os lobisomens são rápidos e os vampiro
 
   Todas as conexões são estabelecidas através do dispositivo Cyclone V SoC FPGA para fornecer flexibilidade máxima aos usuários. Os usuários podem configurar o FPGA para implementar qualquer projeto de sistema.
 
-  <figure align="center">
+  <div style="text-align: center;">
+  <figure>
     <img src="/docs/img/de1-soc-diagram.jpeg" />
     <figcaption> Figura 2: Diagrama do Kit de Desenvolvimento DE1-SoC </figcaption>
   </figure>
+  </div>
 
   </div>
 
@@ -122,40 +126,66 @@ Os zumbis movem-se lentamente, enquanto os lobisomens são rápidos e os vampiro
 
   O discente Gabriel Barreto Alves foi responsável pelo projeto de elaboração da CoLenda, GPU utilizada no projeto. A CoLenda é capaz de renderizar, em uma tela de resolução 640x480, dois tipos de polígonos convexos (quadrado e triângulo), <i>sprites</i>, planos de fundo e blocos de *pixel* 8x8, possibilitando a seleção de cor com 3 bits para vermelho, verde e azul para os dois últimos e para os *pixels* dos sprites. Há a possibilidade de utilizar quatro tipos de instruções diferentes.
 
-  <figure align="center">
+  <div style="text-align: center;">
+  <figure>
     <img src="docs/img/colenda_architecture.png" /img> 
     <figcaption> Figura 3: Arquitetura da GPU CoLenda </figcaption>
   </figure>
+  </div>
 
-  <figure align="center">
+  Texto
+
+  <div style="text-align: center;">
+  <figure>
     <img src="docs/img/wbr_sprite.png" /img> 
     <figcaption> Figura 4: Instrução WBR para definir um sprite </figcaption>
   </figure>
+  </div>
 
+  Texto
+
+  <div style="text-align: center;">
   <figure align="center">
     <img src="docs/img/wbr_background.png" /img> 
     <figcaption> Figura 5: Instrução WBR para definir o plano de fundo </figcaption>
   </figure>
+  </div>
 
+  Texto
+
+  <div style="text-align: center;">
   <figure align="center">
     <img src="docs/img/wbm.png" /img> 
     <figcaption> Figura 6: Instrução WBM para definir um bloco na memória de background </figcaption>
   </figure>
+  </div>
 
+  Texto
+
+  <div style="text-align: center;">
   <figure align="center">
     <img src="docs/img/wsm.png" /img> 
     <figcaption> Figura 7: Instrução WSM para definir um pixel na memória de sprites </figcaption>
   </figure>
+  </div>
 
+  Texto
+
+  <div style="text-align: center;">
   <figure align="center">
     <img src="docs/img/dp.png" /img> 
     <figcaption> Figura 8: Instrução DP para definir um polígono na tela </figcaption>
   </figure>
+  </div>
 
+  Texto
+
+  <div style="text-align: center;">
   <figure align="center">
     <img src="docs/img/dp_size_setting.png" /img> 
     <figcaption> Figura 9: Tamanhos de polígono </figcaption>
   </figure>
+  </div>
 
   #### 2.4.2. Monitor CRT
 
