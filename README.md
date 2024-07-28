@@ -11,7 +11,7 @@ A importância de escrever um driver para a GPU CoLenda reside na capacidade de 
 
 ## Requisitos
 
-- O problema a ser desenvolvido no Kit FPGA DE1-SoC deve atender às seguintes restrições:
+O problema a ser desenvolvido no Kit FPGA DE1-SoC deve atender às seguintes restrições:
 - O código deve ser escrito em linguagem C;
 - O sistema só poderá utilizar os componentes disponíveis na placa;
 - Um novo sprite deve ser colocado na memória e utilizado no jogo;
@@ -22,8 +22,6 @@ A importância de escrever um driver para a GPU CoLenda reside na capacidade de 
 - O usuário poderá parar e reiniciar o jogo em qualquer momento; 
 - O usuário poderá sair do jogo em qualquer momento.
 - Pelo menos um elemento passivo do jogo deverá se mover.
-
-
 
 ## Equipe
 
@@ -122,13 +120,19 @@ O transceptor Ethernet também suporta interface RGMII MAC.
 
 O monitor utilizado no projeto foi o DELL M782p, um modelo CRT. Esse tipo de monitor utiliza um tubo de raios catódicos (CRT) para exibir imagens. O DELL M782p possui uma tela de visualização de 17 polegadas e uma resolução máxima de 1280x1024 pixels. Ele oferece uma interface VGA para conexão com o computador ou placa de desenvolvimento. Os monitores CRT são conhecidos por sua reprodução de cores vibrantes e tempos de resposta rápidos, tornando-os uma escolha adequada para projetos que exigem interação em tempo real, como jogos e simulações.
 
-### GPU
+### GPU CoLenda
 
 Unidade de processamento gráfico, também conhecida como GPU, é um componente eletrônico projetado para acelerar tarefas relacionadas à computação gráfica e ao processamento de imagens em uma ampla gama de dispositivos, incluindo placas de vídeo, placas-mãe, smartphones e computadores pessoais (PCs). A capacidade da GPU de realizar cálculos matemáticos complexos de forma rápida e eficiente reduz significativamente o tempo necessário para que um computador execute uma variedade de programas.
+
+O discente Gabriel Barreto Alves foi responsável pelo projeto de elaboração da CoLenda, GPU utilizada no projeto.
+
+Mais informações acerca do funcionamento da GPU podem ser encontradas neste documento.
 
 <div id="metodo"> 
 <h2> Metodologia </h2>
 <div align="justify">
+
+Esta seção visa expor o processo de criação do jogo "Crux Sit" e a sua implementação no Kit de Desenvolvimento DE1-SoC.
 
 ### Criação dos cenários e sprites
 
