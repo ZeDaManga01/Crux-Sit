@@ -1,9 +1,9 @@
-<div align="center" id="title"> 
-  <p align="center"> 
-    <img src=(docs/icon.png)/>
+<div align="center" id="title">
+  <p align="center">
+    <img src="docs/icon.png" alt="Crux Sit Logo"/>
   </p>
 
-  <h1> 
+  <h1>
     "Crux Sit" - Jogo desenvolvido em C para o Kit de Desenvolvimento FPGA DE1-SoC
   </h1>
 </div>
