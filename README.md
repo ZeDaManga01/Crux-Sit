@@ -1,15 +1,38 @@
-# ![Icon](docs/icon.png) Crux Sit
-## Introdução
+# <div align="center">![Icon](docs/icon.png) Crux Sit</div>
 
-"Crux Sit" é um jogo desenvolvido em C para a FPGA DE1-SoC com ajuda da GPU CoLenda, onde o jogador assume o papel de um caçador de seres sobrenaturais e precisa impedir que ondas de monstros alcancem a vila.
+<div id="resumo" align="justify"> 
+<h3 align="center"> Resumo </h3>
+Este README possui o objetivo de descrever a estruturação e a elaboração do jogo "Crux Sit", desenvolvido no Kit de Desenvolvimento DE1-SoC com o auxílio da arquitetura da GPU CoLenda, projeto relacionado ao Trabalho de Conclusão de Curso do discente Gabriel Barreto Alves. O projeto de desenvolvimento do jogo se baseou na preparação de um <i>driver</i> de núcleo <i>kernel</i> para implementar a comunicação com os barramentos da GPU CoLenda, além de bibliotecas auxiliares que processam a utilização do mouse, máquinas de estados, deslocamentos de bits e lógicas combinacionais, estruturando o alicerce do código do jogo. A implementação do jogo atendeu a todos os requisitos necessários e propõem um projeto de jogo operante e funcional.
+</div>
 
-O jogo apresenta três tipos de monstros: zumbis, lobisomens e vampiros. Cada tipo de monstro possui atributos únicos que influenciam sua movimentação e exigem diferentes tipos de munição para serem derrotados: bala normal para zumbis, bala de prata para lobisomens e dente de alho para vampiros.
+<div id="abstract" align="justify"> 
+<h3 align="center"> Abstract </h3>
+This README aims to describe the structuring and development of the game “Crux Sit”, developed in the DE1-SoC Development Kit with the help of the CoLenda GPU architecture, the Final Project of the student Gabriel Barreto Alves. The game development project was based on preparing a kernel driver to implement communication with the CoLenda GPU buses, as well as auxiliary libraries that process the use of the mouse, state machines, bit shifts and combinational logic, structuring the foundation of the game code. The implementation of the game met all the necessary requirements and proposes an operative and functional project.
+</div>
+
+<div id="team">
+<h2 align="justify"> Equipe </h2>
+
+<uL>
+  <li><a href="https://github.com/pierremachado">Pierre Machado</a></li>
+  <li><a href="https://github.com/kevincorges">Kevin Borges</a></li>
+  <li><a href="https://github.com/ZeDaManga01">José Alberto</a></li>
+</ul>
+</div>
+
+<div id="intro" align="justify">
+<h2> 1. Introdução </h2>
+
+A importância de desenvolver um driver para a GPU CoLenda reside na capacidade de explorar ao máximo o potencial da FPGA DE1-SoC, unindo o conhecimento adquirido sobre como o hardware influencia o software no produto final.
+
+"Crux Sit" é um jogo desenvolvido em C para a FPGA DE1-SoC com ajuda da GPU CoLenda, onde o jogador assume o papel de um caçador de seres sobrenaturais e precisa impedir que ondas de monstros alcancem a vila. O jogo apresenta três tipos de monstros: zumbis, lobisomens e vampiros. Cada tipo de monstro possui atributos únicos que influenciam sua movimentação e exigem diferentes tipos de munição para serem derrotados: bala normal para zumbis, bala de prata para lobisomens e dente de alho para vampiros.
 
 Os zumbis movem-se lentamente, enquanto os lobisomens são rápidos e os vampiros exibem um movimento senoidal, desafiando a precisão do jogador. A mecânica do jogo é desenhada de forma a exigir habilidade e estratégia, pois cada monstro precisa ser abatido com a munição correta para evitar que alcancem a vila. O jogador possui três vidas, perdendo uma sempre que um monstro consegue atravessar a defesa. Os pontos são acumulados conforme os monstros são derrotados, e a rodada termina com o amanhecer.
 
-A importância de escrever um driver para a GPU CoLenda reside na capacidade de explorar ao máximo o potencial da FPGA DE1-SoC, unindo o conhecimento adquirido sobre como o hardware influencia o software no produto final.
+</div>
 
-## Requisitos
+<div id="req">
+<h2 align="justify"> 2. Requisitos </h2>
 
 O problema a ser desenvolvido no Kit FPGA DE1-SoC deve atender às seguintes restrições:
 - O código deve ser escrito em linguagem C;
@@ -23,138 +46,135 @@ O problema a ser desenvolvido no Kit FPGA DE1-SoC deve atender às seguintes res
 - O usuário poderá sair do jogo em qualquer momento.
 - Pelo menos um elemento passivo do jogo deverá se mover.
 
-## Equipe
-
-<uL>
-  <li><a href="https://github.com/pierremachado">Pierre Machado</a></li>
-  <li><a href="https://github.com/kevincorges">Kevin Borges</a></li>
-  <li><a href="https://github.com/ZeDaManga01">José Alberto</a></li>
-</ul>
-
-<h1 align="center"> Sumário </h1>
-<div id="sumario">
-        <ul>
-        <li><a href="#sft_ut"> Softwares Utilizados </a></li>
-        <li><a href="#kit_placa"> Kit de Desenvolvimento DE1-SoC</a></li>
-        <li><a href="#comp_u">  Componentes Utilizados</a></li>
-        <li><a href="#metodo"> Metodologia</a></li>
-        <li><a href="#dinamic"> Dinâmica do jogo</a></li>
-        <li><a href="#test"> Testes</a></li>
-        <li><a href="#resultconcl"> Resultados e conclusão</a></li>
-        <li><a href="#makefile"> Instruções de execução</a></li>
-        <li><a href="#ref"> Referências</a></li>
-        </ul>
 </div>
 
-<div id="sft_ut"> 
-<h2> Softwares Utilizados</h2>
-<div align="justify">
 
-### C
+<div id="metodo" align="justify"> 
+<h2> 3. Metodologia </h2>
 
-A linguagem C é amplamente utilizada em projetos devido à sua eficiência e versatilidade. Com sua sintaxe direta e controle próximo sobre o hardware, o C permite desenvolver programas robustos e rápidos, especialmente em sistemas embarcados, drivers de dispositivos e software de baixo nível. No contexto deste projeto, a utilização da linguagem C foi um dos requisitos necessarios a serem cumpridos.
+  Esta seção visa expor o processo de criação do jogo "Crux Sit" e a sua implementação no Kit de Desenvolvimento DE1-SoC.
 
-### VS Code
+  <div id="sft_ut" align="justify"> 
+  <h3> 3.1. Softwares Utilizados</h3>
 
-O Visual Studio Code (VS Code) é uma ferramenta popular e altamente funcional utilizada em uma variedade de projetos de desenvolvimento de software. O uso dele foi necessário para agilizar o desenvolvimento, permitindo editar, depurar e gerenciar o código de maneira simplificada e eficaz.
+  #### 3.1.1. C
 
-### GNU/Linux
+  A linguagem C é amplamente utilizada em projetos devido à sua eficiência e versatilidade. Com sua sintaxe direta e controle próximo sobre o hardware, o C permite desenvolver programas robustos e rápidos, especialmente em sistemas embarcados, drivers de dispositivos e software de baixo nível. No contexto deste projeto, a utilização da linguagem C foi um dos requisitos necessarios a serem cumpridos.
 
-Por fim, o kit de desenvolvimento DE1-SoC possui uma distribuição do Linux embarcado instalada, possibilitando a comunicação com o kit bem como a execução dos códigos criados através de conexão remota. Isso oferece uma gama de possibilidades para a elaboração do problema: a disposição dos diretórios do sistema e a possibilidade de compilar códigos na linguagem de programação requisitada de forma fácil com o compilador GCC embarcado no kit de desenvolvimento foram fundamentais.
+  #### 3.1.2. VS Code
 
-<div id="kit_placa"> 
-<h2> Kit de Desenvolvimento DE1-SoC</h2>
-<div align="justify">
+  O Visual Studio Code (VS Code) é uma ferramenta popular e altamente funcional utilizada em uma variedade de projetos de desenvolvimento de software. O uso dele foi necessário para agilizar o desenvolvimento, permitindo editar, depurar e gerenciar o código de maneira simplificada e eficaz.
 
-O kit de desenvolvimento DE1-SoC apresenta uma plataforma robusta de design de hardware construída em torno do Altera
-FPGA System-on-Chip (SoC), que combina os mais recentes núcleos incorporados Cortex-A9 dual-core
-com lógica programável líder do setor para máxima flexibilidade de projeto.
+  #### 3.1.3. GNU/Linux
 
-<p align="center">
-  <img src="https://github.com/ZeDaManga01/PBL-01-MI---Sistemas-Digitais/blob/main/docs/image%20-%20De1-SoC.jpeg" />
-</p>
+  Por fim, o kit de desenvolvimento DE1-SoC possui uma distribuição do Linux embarcado instalada, possibilitando a comunicação com o kit bem como a execução dos códigos criados através de conexão remota. Isso oferece uma gama de possibilidades para a elaboração do problema: a disposição dos diretórios do sistema e a possibilidade de compilar códigos na linguagem de programação requisitada de forma fácil com o compilador GCC embarcado no kit de desenvolvimento foram fundamentais.
 
-### ARM CORTEX A9
+  </div>
 
-A arquitetura utilizada por esse processador é a RISC – Reduced Instruction Set
-Computer, suas operações lógicas e aritméticas são efetuadas em operadores dos registradores
-de propósitos gerais. Os dados são movidos entre a memória e esses registradores por meio de
-instruções de carga e armazenamento - Load and Store. 
 
-### Registradores
+  <div id="kit_placa" div align="justify"> 
+  <h3> 3.2. Kit de Desenvolvimento DE1-SoC</h3>
 
-O ARM possui 16 registradores de 32 bits, sendo 15 de uso geral, R0 a R14 e um
-Program Counter R15. O registrador R15 tem o endereço da próxima instrução que será
-executada. Os registradores R13 e R14, são usados convencionalmente como ponteiro de
-pilha Stack Pointer, que contém o endereço atual do elemento superior da pilha e registrador
-de link Link Register, que recebe o endereço de retorno em chamadas de procedimento,
-respectivamente.
+  O kit de desenvolvimento DE1-SoC apresenta uma plataforma robusta de design de hardware construída em torno do Altera FPGA System-on-Chip (SoC), que combina os mais recentes núcleos incorporados Cortex-A9 dual-core com lógica programável líder do setor para máxima flexibilidade de projeto.
 
-### Memória
+  <p align="center">
+    <img src="https://github.com/ZeDaManga01/PBL-01-MI---Sistemas-Digitais/blob/main/docs/image%20-%20De1-SoC.jpeg" />
+  </p>
 
-A placa suporta 1GB de SDRAM DDR3, compreendendo dois dispositivos DDR3 de 16 bits cada no lado do HPS.
-Os sinais estão conectados ao Controlador de Memória Dedicado para os bancos de I/O do HPS
-e a velocidade alvo é de 400 MHz.
+  #### 3.2.1. ARM CORTEX A9
 
-### Diagrama de Blocos da DE1-SoC
+  A arquitetura utilizada por esse processador é a RISC – Reduced Instruction Set Computer. Sua operações lógicas e aritméticas são efetuadas em operadores dos registradores de propósito geral. Os dados são movidos entre a memória e esses registradores por meio de instruções de carga e armazenamento - Load and Store.
 
-Todas as conexões são estabelecidas através do
-Dispositivo Cyclone V SoC FPGA para fornecer flexibilidade máxima aos usuários. Os usuários podem configurar o
-FPGA para implementar qualquer projeto de sistema.
+  #### 3.2.2. Registradores
 
-<p align="center">
-  <img src="https://github.com/ZeDaManga01/PBL-01-MI---Sistemas-Digitais/blob/main/docs/Image.jpeg" />
-</p>
+  O ARM possui 16 registradores de 32 bits, sendo 15 de uso geral, R0 a R14 e um Program Counter R15. O registrador R15 tem o endereço da próxima instrução que será executada. Os registradores R13 e R14, são usados convencionalmente como ponteiro de pilha Stack Pointer, que contém o endereço atual do elemento superior da pilha e registrador de link Link Register, que recebe o endereço de retorno em chamadas de procedimento, respectivamente.
 
-<div id="comp_u"> 
-<h2> Componentes Utilizados</h2>
-<div align="justify">
+  #### 3.2.3. Memória
 
-### Gigabit Ethernet
- 
-A placa suporta transferência Gigabit Ethernet por um chip externo Micrel KSZ9021RN PHY e
-Função HPS Ethernet MAC. O chip KSZ9021RN com Gigabit 10/100/1000 Mbps integrado
-O transceptor Ethernet também suporta interface RGMII MAC.
+  A placa suporta 1GB de SDRAM DDR3, compreendendo dois dispositivos DDR3 de 16 bits cada no lado do HPS. Os sinais estão conectados ao Controlador de Memória Dedicado para os bancos de I/O do HPS e a velocidade alvo é de 400 MHz.
 
-### Monitor CRT
+  #### 3.2.4. Diagrama de Blocos da DE1-SoC
 
-O monitor utilizado no projeto foi o DELL M782p, um modelo CRT. Esse tipo de monitor utiliza um tubo de raios catódicos (CRT) para exibir imagens. O DELL M782p possui uma tela de visualização de 17 polegadas e uma resolução máxima de 1280x1024 pixels. Ele oferece uma interface VGA para conexão com o computador ou placa de desenvolvimento. Os monitores CRT são conhecidos por sua reprodução de cores vibrantes e tempos de resposta rápidos, tornando-os uma escolha adequada para projetos que exigem interação em tempo real, como jogos e simulações.
+  Todas as conexões são estabelecidas através do dispositivo Cyclone V SoC FPGA para fornecer flexibilidade máxima aos usuários. Os usuários podem configurar o FPGA para implementar qualquer projeto de sistema.
 
-### GPU CoLenda
+  <p align="center">
+    <img src="https://github.com/ZeDaManga01/PBL-01-MI---Sistemas-Digitais/blob/main/docs/Image.jpeg" />
+  </p>
 
-Unidade de processamento gráfico, também conhecida como GPU, é um componente eletrônico projetado para acelerar tarefas relacionadas à computação gráfica e ao processamento de imagens em uma ampla gama de dispositivos, incluindo placas de vídeo, placas-mãe, smartphones e computadores pessoais (PCs). A capacidade da GPU de realizar cálculos matemáticos complexos de forma rápida e eficiente reduz significativamente o tempo necessário para que um computador execute uma variedade de programas.
+  #### 3.2.5. Gigabit Ethernet
+  
+  A placa suporta transferência Gigabit Ethernet por um chip externo Micrel KSZ9021RN PHY e função HPS Ethernet MAC. O chip KSZ9021RN com Gigabit 10/100/1000 Mbps integrado. O transceptor Ethernet também suporta interface RGMII MAC.
 
-O discente Gabriel Barreto Alves foi responsável pelo projeto de elaboração da CoLenda, GPU utilizada no projeto. A CoLenda é capaz de renderizar, em uma tela de resolução 640x480, dois tipos de polígonos convexos (quadrado e triângulo), sprites, planos de fundo e blocos de pixel 8x8, possibilitando a seleção de cor com 3 bits para vermelho, verde e azul para os dois últimos e para os pixels dos sprites. Há a possibilidade de utilizar quatro tipos de instruções diferentes, e foi desenvolvido um driver de módulo kernel a fim de gerenciar estas instruções com o uso de uma biblioteca, cuja metodologia de desenvolvimento pode ser acessada através [<u>deste link</u>](https://github.com/ZeDaManga01/PBL-02-MI---Sistemas-Digitais).
+  </div>
 
-<div id="metodo"> 
-<h2> Metodologia </h2>
-<div align="justify">
 
-Esta seção visa expor o processo de criação do jogo "Crux Sit" e a sua implementação no Kit de Desenvolvimento DE1-SoC.
+  <div id="sft_ut" align="justify"> 
+  <h3> 3.3. Componentes Utilizados</h3>
 
-### Criação dos cenários e sprites
+  #### 3.3.1. GPU CoLenda
 
-Os cenários e sprites dos monstros foram criados utilizando a plataforma online Piskel, que permite a exportação dos sprites como vetores de cores RGBA codificadas em hexadecimal. Para ler esses arrays e convertê-los em informações compatíveis com a biblioteca da GPU CoLenda, foi desenvolvida uma função específica. Esta função converte os números hexadecimais em seus valores correspondentes de RGBA (variando de 0 a 255 para vermelho, verde, azul e alfa, que indica a transparência do pixel). Além disso, foi implementada uma função de normalização para ajustar esses valores, dividindo cada componente da cor por 32 para que se encaixem em 3 bits cada (variando de 0 a 7).
+  Unidade de processamento gráfico, também conhecida como GPU, é um componente eletrônico projetado para acelerar tarefas relacionadas à computação gráfica e ao processamento de imagens em uma ampla gama de dispositivos, incluindo placas de vídeo, placas-mãe, smartphones e computadores pessoais (PCs). A capacidade da GPU de realizar cálculos matemáticos complexos de forma rápida e eficiente reduz significativamente o tempo necessário para que um computador execute uma variedade de programas.
 
-### Movimentação
+  O discente Gabriel Barreto Alves foi responsável pelo projeto de elaboração da CoLenda, GPU utilizada no projeto. A CoLenda é capaz de renderizar, em uma tela de resolução 640x480, dois tipos de polígonos convexos (quadrado e triângulo), sprites, planos de fundo e blocos de pixel 8x8, possibilitando a seleção de cor com 3 bits para vermelho, verde e azul para os dois últimos e para os pixels dos sprites. Há a possibilidade de utilizar quatro tipos de instruções diferentes, e foi desenvolvido um driver de módulo kernel a fim de gerenciar estas instruções com o uso de uma biblioteca, cuja metodologia de desenvolvimento pode ser acessada através [<u>deste link</u>](https://github.com/ZeDaManga01/PBL-02-MI---Sistemas-Digitais).
 
-Os monstros aparecem na tela movendo-se da direita para a esquerda, com o tipo de monstro (zumbi, lobisomem ou vampiro) sendo aleatorizado. As informações de cada monstro são então empacotadas em uma estrutura e armazenadas em um vetor, com suas posições livres sendo monitoradas por um vetor auxiliar, que registra se uma posição no vetor principal está ocupada por uma entidade ou não.
+  #### 3.3.2. Monitor CRT
 
-A movimentação dos monstros é gerida atribuindo posições e velocidades aleatórias a cada um e verificando o tempo decorrido entre as iterações. Utilizando fórmulas físicas de posição em relação à velocidade e ao tempo, assim como de velocidade em relação à aceleração e ao tempo, as posições de todos os monstros são atualizadas. A primeira fórmula é aplicada para atualizar as posições, enquanto a segunda é utilizada para calcular a velocidade atual dos lobisomens e vampiros.
+  O monitor utilizado no projeto foi o DELL M782p, um modelo CRT. Esse tipo de monitor utiliza um tubo de raios catódicos (CRT) para exibir imagens. O DELL M782p possui uma tela de visualização de 17 polegadas e uma resolução máxima de 1280x1024 pixels. Ele oferece uma interface VGA para conexão com o computador ou placa de desenvolvimento. Os monitores CRT são conhecidos por sua reprodução de cores vibrantes e tempos de resposta rápidos, tornando-os uma escolha adequada para projetos que exigem interação em tempo real, como jogos e simulações.
 
-Como mencionado anteriormente, os vampiros voam em senóides, e os lobisomens correm. Os lobisomens podem acelerar ou desacelerar aleatóriamente, mas o movimento do vampiro possui nuances a mais: isso é alcançado ao definir uma lógica para a velocidade e aceleração vertical do vampiro, utilizando um ponto fixo yo como referência para o eixo vertical.
+  </div>
 
-- Primeiro, uma velocidade vertical aleatória (vy) é atribuída ao vampiro.
-- A aceleração vertical do monstro (ay) é definida igual à sua velocidade vertical.
-- Um ponto fixo yo é definido, e será usado como eixo de referência para o movimento senoidal.
-- Se a posição vertical atual do monstro y for maior que yo e a aceleração vertical ay for positiva, inverte-se o sinal da aceleração para torná-la negativa.
-- Se a posição vertical atual do monstro y for menor que yo e a aceleração vertical ay for negativa, inverte-se novamente o sinal da aceleração para torná-la positiva.
 
-Essa lógica faz com que o monstro alterne sua direção vertical sempre que ultrapassa o ponto fixo yo, resultando em um movimento senoidal.
+  <div id="sprite" align="justify"> 
+  <h3> 3.4. Criação dos cenários e sprites </h3>
 
-### Código
+  Os cenários e sprites dos monstros foram criados utilizando a plataforma online Piskel, que permite a exportação dos sprites como vetores de cores RGBA codificadas em hexadecimal. Para ler esses arrays e convertê-los em informações compatíveis com a biblioteca da GPU CoLenda, foi desenvolvida uma função específica. Esta função converte os números hexadecimais em seus valores correspondentes de RGBA (variando de 0 a 255 para vermelho, verde, azul e alfa, que indica a transparência do pixel). Além disso, foi implementada uma função de normalização para ajustar esses valores, dividindo cada componente da cor por 32 para que se encaixem em 3 bits cada (variando de 0 a 7).
 
-O jogo foi dividido em threads, a fim de tornar a verificação dos botões e movimentos do mouse em paralelo, consequentemente aumentando o desempenho.
+  </div>
+
+  <div id="code" align="justify"> 
+  <h3> 3.5. Captura de eventos do mouse </h3>
+
+  
+
+  </div>
+
+  <div id="mov" align="justify"> 
+  <h3> 3.6. Movimentação </h3>
+
+  Os monstros aparecem na tela movendo-se da direita para a esquerda, com o tipo de monstro (zumbi, lobisomem ou vampiro) sendo aleatorizado. As informações de cada monstro são então empacotadas em uma estrutura e armazenadas em um vetor, com suas posições livres sendo monitoradas por um vetor auxiliar, que registra se uma posição no vetor principal está ocupada por uma entidade ou não.
+
+  A movimentação dos monstros é gerida atribuindo posições e velocidades aleatórias a cada um e verificando o tempo decorrido entre as iterações. Utilizando fórmulas físicas de posição em relação à velocidade e ao tempo, assim como de velocidade em relação à aceleração e ao tempo, as posições de todos os monstros são atualizadas. A primeira fórmula é aplicada para atualizar as posições, enquanto a segunda é utilizada para calcular a velocidade atual dos lobisomens e vampiros.
+
+  Como mencionado anteriormente, os vampiros voam em senóides, e os lobisomens correm. Os lobisomens podem acelerar ou desacelerar aleatóriamente, mas o movimento do vampiro possui nuances a mais: isso é alcançado ao definir uma lógica para a velocidade e aceleração vertical do vampiro, utilizando um ponto fixo yo como referência para o eixo vertical.
+
+  - Primeiro, uma velocidade vertical aleatória (vy) é atribuída ao vampiro.
+  - A aceleração vertical do monstro (ay) é definida igual à sua velocidade vertical.
+  - Um ponto fixo yo é definido, e será usado como eixo de referência para o movimento senoidal.
+  - Se a posição vertical atual do monstro y for maior que yo e a aceleração vertical ay for positiva, inverte-se o sinal da aceleração para torná-la negativa.
+  - Se a posição vertical atual do monstro y for menor que yo e a aceleração vertical ay for negativa, inverte-se novamente o sinal da aceleração para torná-la positiva.
+
+  Essa lógica faz com que o monstro alterne sua direção vertical sempre que ultrapassa o ponto fixo yo, resultando em um movimento senoidal.
+
+  </div>
+
+
+  <div id="code" align="justify"> 
+  <h3> 3.7. Separação em threads </h3>
+
+  O jogo foi dividido em threads, a fim de tornar a verificação dos botões e movimentos do mouse em paralelo, consequentemente aumentando o desempenho.
+
+  </div>
+
+
+  <div id="code" align="justify"> 
+  <h3> 3.8. Código </h3>
+
+  
+
+  </div>
+
+</div>
+
 
 <div id="dinamic"> 
 <h2> Dinâmica do jogo</h2>
@@ -167,11 +187,11 @@ O jogo foi dividido em threads, a fim de tornar a verificação dos botões e mo
 Esta sessão é reservada para demonstração dos testes feitos no projeto.
 
 
-<div id="resultconcl"> 
+<div id="resultconcl" align="justify"> 
 <h2> Resultados e Conclusão</h2>
-<div align="justify">
 
 Conclui-se que o projeto foi implementado de forma satisfatória. O driver e a biblioteca se mostraram funcionais e atenderam aos requisitos propostos. Ademais, foi essencial para expandir o conhecimento acerca do kit de desenvolvimento, GNU/Linux embarcado e a comunicação hardware/software, contribuindo para a sofisticação de projetos futuros a serem implementados no kit de desenvolvimento DE1-SoC.
+</div>
 
 
 <div id="makefile"> 
@@ -210,5 +230,4 @@ DE1-SoC Board. Disponível em: https://www.terasic.com.tw/cgi-bin/page/archive.p
 Introduction to the ARM Cortex-A9 Processor. Disponível em: https://github.com/fpgacademy/Tutorials/releases/download/v21.1/ARM_intro_intelfpga.pdf. Acessado em: 5 de maio de 2024.
 
 TANENBAUM, Andrew S. Sistemas Operacionais Modernos. 4. ed. São Paulo: Pearson Prentice Hall, 2008. p. 504.
-
-
+</div>
