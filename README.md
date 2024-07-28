@@ -80,9 +80,10 @@ Os zumbis movem-se lentamente, enquanto os lobisomens são rápidos e os vampiro
 
   O Kit de Desenvolvimento DE1-SoC apresenta uma plataforma robusta de design de *hardware* construída em torno do *Altera FPGA System-on-Chip* (SoC), que combina os mais recentes núcleos incorporados Cortex-A9 *dual-core* com lógica programável líder do setor para máxima flexibilidade de projeto.
 
-  <div style="text-align: center;">
+  <div align="center">
   <figure>
-    <img src="/docs/img/de1-soc.jpeg"/>
+    <img src="/docs/img/de1-soc.jpeg">
+    <br>
     <figcaption> Figura 1: Kit de Desenvolvimento FPGA DE1-SoC </figcaption>
   </figure>
   </div>
@@ -127,63 +128,70 @@ Os zumbis movem-se lentamente, enquanto os lobisomens são rápidos e os vampiro
 
   O discente Gabriel Barreto Alves foi responsável pelo projeto de elaboração da CoLenda, GPU utilizada no projeto. A CoLenda é capaz de renderizar, em uma tela de resolução 640x480, dois tipos de polígonos convexos (quadrado e triângulo), <i>sprites</i>, planos de fundo e blocos de *pixel* 8x8, possibilitando a seleção de cor com 3 bits para vermelho, verde e azul para os dois últimos e para os *pixels* dos sprites. Há a possibilidade de utilizar quatro tipos de instruções diferentes.
 
-  <div style="text-align: center;">
+  <div align="center">
   <figure>
-    <img src="docs/img/colenda_architecture.png" /img> 
+    <img src="docs/img/colenda_architecture.png">
+    <br>
     <figcaption> Figura 3: Arquitetura da GPU CoLenda </figcaption>
   </figure>
   </div>
 
   Texto
 
-  <div style="text-align: center;">
+  <div align="center">
   <figure>
-    <img src="docs/img/wbr_sprite.png" /img> 
+    <img src="docs/img/wbr_sprite.png">
+    <br>
     <figcaption> Figura 4: Instrução WBR para definir um sprite </figcaption>
   </figure>
   </div>
 
   Texto
 
-  <div style="text-align: center;">
-  <figure align="center">
-    <img src="docs/img/wbr_background.png" /img> 
+<div align="center">
+  <figure>
+    <img src="docs/img/wbr_background.png">
+    <br>
     <figcaption> Figura 5: Instrução WBR para definir o plano de fundo </figcaption>
   </figure>
   </div>
 
   Texto
 
-  <div style="text-align: center;">
-  <figure align="center">
-    <img src="docs/img/wbm.png" /img> 
+<div align="center">
+  <figure>
+    <img src="docs/img/wbm.png">
+    <br>
     <figcaption> Figura 6: Instrução WBM para definir um bloco na memória de background </figcaption>
   </figure>
   </div>
 
   Texto
 
-  <div style="text-align: center;">
-  <figure align="center">
-    <img src="docs/img/wsm.png" /img> 
+<div align="center">
+  <figure>
+    <img src="docs/img/wsm.png"> 
+    <br>
     <figcaption> Figura 7: Instrução WSM para definir um pixel na memória de sprites </figcaption>
   </figure>
   </div>
 
   Texto
 
-  <div style="text-align: center;">
-  <figure align="center">
-    <img src="docs/img/dp.png" /img> 
+<div align="center">
+  <figure>
+    <img src="docs/img/dp.png"> 
+    <br>
     <figcaption> Figura 8: Instrução DP para definir um polígono na tela </figcaption>
   </figure>
   </div>
 
   Texto
 
-  <div style="text-align: center;">
-  <figure align="center">
-    <img src="docs/img/dp_size_setting.png" /img> 
+<div align="center">
+  <figure>
+    <img src="docs/img/dp_size_setting.png"> 
+    <br>
     <figcaption> Figura 9: Tamanhos de polígono </figcaption>
   </figure>
   </div>
@@ -192,10 +200,13 @@ Os zumbis movem-se lentamente, enquanto os lobisomens são rápidos e os vampiro
 
   O monitor utilizado no projeto foi o DELL M782p, um modelo CRT. Esse tipo de monitor utiliza um tubo de raios catódicos (CRT) para exibir imagens. O DELL M782p possui uma tela de visualização de 17 polegadas e uma resolução máxima de 1280x1024 *pixels*. Ele oferece uma interface VGA para conexão com o computador ou placa de desenvolvimento. Os monitores CRT são conhecidos por sua reprodução de cores vibrantes e tempos de resposta rápidos, tornando-os uma escolha adequada para projetos que exigem interação em tempo real, como jogos e simulações.
 
-  <figure align="center">
-    <img src="docs/img/crt.jpg" /img> 
+  <div align="center">
+  <figure>
+    <img src="docs/img/crt.jpg"> 
+    <br>
     <figcaption> Figura 10: Imagem renderizada pela CoLenda no DELL M782p </figcaption>
   </figure>
+  </div>
 
   </div>
 
@@ -234,20 +245,29 @@ Os zumbis movem-se lentamente, enquanto os lobisomens são rápidos e os vampiro
 
   Os cenários e sprites dos monstros foram criados utilizando a plataforma online Piskel, que permite a exportação dos sprites como vetores de cores RGBA codificadas em hexadecimal. Para ler esses arrays e convertê-los em informações compatíveis com a biblioteca da GPU CoLenda, foi desenvolvida uma função específica. Esta função converte os números hexadecimais em seus valores correspondentes de RGBA (variando de 0 a 255 para vermelho, verde, azul e alfa, que indica a transparência do pixel). Além disso, foi implementada uma função de normalização para ajustar esses valores, dividindo cada componente da cor por 32 para que se encaixem em 3 bits cada (variando de 0 a 7).
 
-  <figure align="center">
+  <div align="center">
+  <figure>
     <img src="docs/img/zombie.png">
+    <br>
     <figcaption>Figura 11: Sprite do zumbi</figcaption>
   </figure>
+  </div>
 
-  <figure align="center">
+  <div align="center">
+  <figure>
     <img src="docs/img/werewolf.png">
+    <br>
     <figcaption>Figura 12: Sprite do lobisomem</figcaption>
   </figure>
+  </div>
 
-  <figure align="center">
+  <div align="center">
+  <figure>
     <img src="docs/img/vampire.png">
+    <br>
     <figcaption>Figura 13: Sprite do vampiro</figcaption>
   </figure>
+  </div>
 
   ```c
   typedef struct {
@@ -266,15 +286,21 @@ Os zumbis movem-se lentamente, enquanto os lobisomens são rápidos e os vampiro
   <div id="code" align="justify"> 
   <h3> 3.3. Captura de eventos do mouse </h3>
 
-  <figure align="center">
+  <div align="center">
+  <figure>
     <img src="docs/img/mouse_displacement.png">
+    <br>
     <figcaption>Figura 14: Plano cartesiano do deslocamento do mouse</figcaption>
   </figure>
+  </div>
 
-  <figure align="center">
+  <div align="center">
+  <figure>
     <img src="docs/img/mouse_mealy_fsm.png">
+    <br>
     <figcaption>Figura 15: Diagrama da máquina de Mealy (FSM) do mouse</figcaption>
   </figure>
+  </div>
 
   </div>
 
@@ -293,10 +319,13 @@ Os zumbis movem-se lentamente, enquanto os lobisomens são rápidos e os vampiro
   - Se a posição vertical atual do monstro y for maior que yo e a aceleração vertical ay for positiva, inverte-se o sinal da aceleração para torná-la negativa.
   - Se a posição vertical atual do monstro y for menor que yo e a aceleração vertical ay for negativa, inverte-se novamente o sinal da aceleração para torná-la positiva.
   
-  <figure align="center"> 
+  <div align="center">
+  <figure> 
     <img src="docs/img/vampire_movement.png">
+    <br>
     <figcaption>Figura 16: Diagrama da movimentação do vampiro</figcaption> 
   </figure>
+  </div>
 
   Essa lógica faz com que o monstro alterne sua direção vertical sempre que ultrapassa o ponto fixo yo, resultando em um movimento senoidal.
 
@@ -342,10 +371,13 @@ Os zumbis movem-se lentamente, enquanto os lobisomens são rápidos e os vampiro
 
   O display
 
-  <figure align="center"> 
+  <div align="center">
+  <figure> 
     <img src="docs/img/7seg_truth_table.png">
+    <br>
     <figcaption>Figura 17: Tabela verdade do <i>display</i> de 7 segmentos</figcaption> 
   </figure>
+  </div>
 
   ```c
   int numbertodigit (int number); // Função que converte um número de 0 a 9 em suas saídas correspondentes do display de 7 segmentos
@@ -360,10 +392,13 @@ Os zumbis movem-se lentamente, enquanto os lobisomens são rápidos e os vampiro
 
   O jogo foi dividido em threads, a fim de tornar a verificação dos botões e movimentos do mouse em paralelo, consequentemente aumentando o desempenho.
 
-  <figure align="center"> 
+  <div align="center">
+  <figure> 
     <img src="docs/img/gameflowchart.png">
+    <br>
     <figcaption>Figura 18: Fluxograma do jogo</figcaption> 
   </figure>
+  </div>
 
   </div>
   
@@ -375,44 +410,37 @@ Os zumbis movem-se lentamente, enquanto os lobisomens são rápidos e os vampiro
 
 Esta sessão é reservada para demonstração dos testes feitos no projeto.
 
-<figure align="center">
-  <img src="docs/img/night.jpg">
-  <figcaption>Figura 19: Tela do jogo</figcaption>
+<div align="center">
+<figure>
+  <img src="docs/img/gameplay.gif">
+  <br>
+  <figcaption>Figura 19: Menu principal e jogabilidade</figcaption>
 </figure>
+</div>
 
-<figure align="center">
-  <img src="docs/img/win.jpg">
+<div align="center">
+<figure>
+  <img src="docs/img/win.gif">
+  <br>
   <figcaption>Figura 20: Tela de vitória do jogo</figcaption>
 </figure>
+</div>
 
-<figure align="center">
-  <img src="docs/img/defeat.jpg">
+<div align="center">
+<figure>
+  <img src="docs/img/defeat.gif">
+  <br>
   <figcaption>Figura 21: Tela de derrota do jogo</figcaption>
 </figure>
+</div>
 
-<figure align="center">
-  <video height="640" width="360" controls>
-    <source src="docs/vid/gameplay.mp4" type="video/mp4">
-  </video>
-
-  <figcaption> Vídeo 1: Exemplo de jogabilidade com vitória </figcaption>
+<div align="center">
+<figure>
+  <img src="docs/img/display7seg.gif">
+  <br>
+  <figcaption>Figura 22: Display de 7 segmentos contabilizando os pontos</figcaption>
 </figure>
-
-<figure align="center">
-  <video height="640" width="360" controls>
-    <source src="docs/vid/defeat.mp4" type="video/mp4">
-  </video>
-
-  <figcaption> Vídeo 2: Exemplo de jogabilidade com derrota </figcaption>
-</figure>
-
-<figure align="center">
-  <video height="640" width="360" controls>
-    <source src="docs/vid/display7seg.mp4" type="video/mp4">
-  </video>
-
-  <figcaption> Vídeo 3: Contagem de pontos no <i>display</i> de 7 segmentos </figcaption>
-</figure>
+</div>
 
 <div id="resultconcl" align="justify"> 
 <h2> 5. Conclusão</h2>
