@@ -60,7 +60,7 @@ O Visual Studio Code (VS Code) é uma ferramenta popular e altamente funcional u
 
 ### GNU/Linux
 
-Por fim, o kit de desenvolvimento DE1-SoC possui uma distribuição do Linux embarcado instalada, possibilitando a comunicação com o kit bem como a execução dos códigos criados através de conexão remota. Isso oferece uma gama de possibilidades para a elaboração do problema: a disposição dos diretórios do sistema e a possibilidade de compilar códigos na linguagem de programação requisitada de forma fácil com o compilador gcc embarcado no kit de desenvolvimento foram fundamentais.
+Por fim, o kit de desenvolvimento DE1-SoC possui uma distribuição do Linux embarcado instalada, possibilitando a comunicação com o kit bem como a execução dos códigos criados através de conexão remota. Isso oferece uma gama de possibilidades para a elaboração do problema: a disposição dos diretórios do sistema e a possibilidade de compilar códigos na linguagem de programação requisitada de forma fácil com o compilador GCC embarcado no kit de desenvolvimento foram fundamentais.
 
 <div id="kit_placa"> 
 <h2> Kit de Desenvolvimento DE1-SoC</h2>
@@ -124,9 +124,7 @@ O monitor utilizado no projeto foi o DELL M782p, um modelo CRT. Esse tipo de mon
 
 Unidade de processamento gráfico, também conhecida como GPU, é um componente eletrônico projetado para acelerar tarefas relacionadas à computação gráfica e ao processamento de imagens em uma ampla gama de dispositivos, incluindo placas de vídeo, placas-mãe, smartphones e computadores pessoais (PCs). A capacidade da GPU de realizar cálculos matemáticos complexos de forma rápida e eficiente reduz significativamente o tempo necessário para que um computador execute uma variedade de programas.
 
-O discente Gabriel Barreto Alves foi responsável pelo projeto de elaboração da CoLenda, GPU utilizada no projeto.
-
-Mais informações acerca do funcionamento da GPU podem ser encontradas neste documento.
+O discente Gabriel Barreto Alves foi responsável pelo projeto de elaboração da CoLenda, GPU utilizada no projeto. A CoLenda é capaz de renderizar, em uma tela de resolução 640x480, dois tipos de polígonos convexos (quadrado e triângulo), sprites, planos de fundo e blocos de pixel 8x8, possibilitando a seleção de cor com 3 bits para vermelho, verde e azul para os dois últimos e para os pixels dos sprites. Há a possibilidade de utilizar quatro tipos de instruções diferentes, e foi desenvolvido um driver de módulo kernel a fim de gerenciar estas instruções com o uso de uma biblioteca, cuja metodologia de desenvolvimento pode ser acessada através [<u>deste link</u>](https://github.com/ZeDaManga01/PBL-02-MI---Sistemas-Digitais).
 
 <div id="metodo"> 
 <h2> Metodologia </h2>
