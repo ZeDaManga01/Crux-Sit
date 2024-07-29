@@ -35,7 +35,7 @@ A importância de desenvolver um driver para a GPU CoLenda reside na capacidade 
 
 No contexto deste projeto, o jogo desenvolvido em C para a FPGA DE1-SoC e com o auxílio da GPU CoLenda foi "Crux Sit", onde o jogador assume o papel de um caçador de seres sobrenaturais e precisa impedir que ondas de monstros alcancem a vila. O jogo apresenta três tipos de monstros: zumbis, lobisomens e vampiros. Cada tipo de monstro possui atributos únicos que influenciam sua movimentação e exigem diferentes tipos de munição para serem derrotados: bala normal para zumbis, bala de prata para lobisomens e dente de alho para vampiros.
 
-Os zumbis movem-se lentamente, enquanto os lobisomens são rápidos e os vampiros exibem um movimento senoidal, desafiando a precisão do jogador. A mecânica do jogo é desenhada de forma a exigir habilidade e estratégia, pois cada monstro precisa ser abatido com a munição correta para evitar que alcancem a vila. O jogador possui três vidas, perdendo uma sempre que um monstro consegue atravessar a defesa. Os pontos são acumulados conforme os monstros são derrotados, e a partida termina com o amanhecer.
+Os zumbis movem-se lentamente, enquanto os lobisomens são rápidos e os vampiros exibem um movimento senoidal, desafiando a precisão do jogador. A mecânica do jogo é desenhada de forma a exigir habilidade e estratégia, pois cada monstro precisa ser abatido com a munição correta para evitar que alcancem a vila. O jogador possui cinco vidas, perdendo uma sempre que um monstro consegue atravessar a defesa. Os pontos são acumulados conforme os monstros são derrotados, e a partida termina com o amanhecer.
 
 </div>
 
@@ -84,9 +84,10 @@ Os zumbis movem-se lentamente, enquanto os lobisomens são rápidos e os vampiro
   <figure>
     <img src="/docs/img/de1-soc.jpeg">
     <br>
-    <figcaption> Figura 1: Kit de Desenvolvimento FPGA DE1-SoC </figcaption>
+    <figcaption> Figura 1: Kit de Desenvolvimento FPGA DE1-SoC. </figcaption>
   </figure>
   </div>
+  <br>
 
   #### 2.3.1. ARM CORTEX A9
 
@@ -112,9 +113,10 @@ Os zumbis movem-se lentamente, enquanto os lobisomens são rápidos e os vampiro
   <figure>
     <img src="/docs/img/de1-soc-diagram.jpeg">
     <br>
-    <figcaption> Figura 2: Diagrama do Kit de Desenvolvimento DE1-SoC </figcaption>
+    <figcaption> Figura 2: Diagrama do Kit de Desenvolvimento DE1-SoC. </figcaption>
   </figure>
   </div>
+  <br>
 
   </div>
 
@@ -128,73 +130,82 @@ Os zumbis movem-se lentamente, enquanto os lobisomens são rápidos e os vampiro
 
   O discente Gabriel Barreto Alves foi responsável pelo projeto de elaboração da CoLenda, GPU utilizada no projeto. A CoLenda é capaz de renderizar, em uma tela de resolução 640x480, dois tipos de polígonos convexos (quadrado e triângulo), <i>sprites</i>, planos de fundo e blocos de *pixel* 8x8, possibilitando a seleção de cor com 3 bits para vermelho, verde e azul para os dois últimos e para os *pixels* dos sprites. Há a possibilidade de utilizar quatro tipos de instruções diferentes.
 
+  A Figura 1 exemplifica a arquitetura da GPU CoLenda, destacando as principais entradas e saídas de dados.
+
   <div align="center">
   <figure>
     <img src="docs/img/colenda_architecture.png">
     <br>
-    <figcaption> Figura 3: Arquitetura da GPU CoLenda </figcaption>
+    <figcaption> Figura 3: Arquitetura da GPU CoLenda. </figcaption>
   </figure>
   </div>
+  <br>
 
-  Texto
+  Na figura acima, os dados são transportados do processador NIOS II pelos barramentos data A e data B, respectivamente. Eles são armazenados em suas respectivas filas, e a execução é pausada retirando os elementos das filas simultaneamente. O processador gráfico então executa as instruções com base na ordem que as filas se dispõem. Se uma das duas filas estiver cheia, um sinal em nível lógico alto é enviado ao barramento wrfull, sendo capturado posteriormente pelo sistema.
+
+  As instruções que cada barramento pode receber estão exemplificadas nas figuras abaixo. Toda instrução possui um opcode para ser decodificada pelo processador gráfico no barramento data A, e as configurações da instrução são passadas pelo barramento data B.
+
+  As figuras 4 e 5 são referentes à instrução de escrita no banco de registradores, responsável por definir um sprite na tela e por alterar a cor do plano de fundo, respectivamente. Seu opcode é 0000.
 
   <div align="center">
   <figure>
     <img src="docs/img/wbr_sprite.png">
     <br>
-    <figcaption> Figura 4: Instrução WBR para definir um sprite </figcaption>
+    <figcaption> Figura 4: Instrução WBR para definir um sprite. </figcaption>
   </figure>
   </div>
+  <br>
 
-  Texto
-
-<div align="center">
+  <div align="center">
   <figure>
     <img src="docs/img/wbr_background.png">
     <br>
-    <figcaption> Figura 5: Instrução WBR para definir o plano de fundo </figcaption>
+    <figcaption> Figura 5: Instrução WBR para definir o plano de fundo. </figcaption>
   </figure>
   </div>
+  <br>
 
-  Texto
+  A figura 6 exemplifica os blocos de plano de fundo utilizados na função WBM, com opcode 0010. Cada um pode ser alterado individualmente, utilizando uma sintaxe similar à instrução WBR.
 
-<div align="center">
+  <div align="center">
   <figure>
     <img src="docs/img/wbm.png">
     <br>
-    <figcaption> Figura 6: Instrução WBM para definir um bloco na memória de background </figcaption>
+    <figcaption> Figura 6: Instrução WBM para definir um bloco na memória de background. </figcaption>
   </figure>
   </div>
+  <br>
 
-  Texto
+  A figura 7 exemplifica a instrução WSM, com opcode 00001, responsável por definir um pixel na memória de sprites. É a instrução que torna possível definir sprites personalizados para o jogo.
 
-<div align="center">
+  <div align="center">
   <figure>
     <img src="docs/img/wsm.png"> 
     <br>
-    <figcaption> Figura 7: Instrução WSM para definir um pixel na memória de sprites </figcaption>
+    <figcaption> Figura 7: Instrução WSM para definir um pixel na memória de sprites. </figcaption>
   </figure>
   </div>
+  <br>
 
-  Texto
+  Por fim, a Figura 8 e a Tabela 1 demonstram a instrução DP, com opcode 0011, para definir um dos polígonos convexos na tela. O tipo de polígono convexo é definido por um bit (0 = quadrado, 1 = triângulo), e o tamanho é definido por números de 0 a 15.
 
 <div align="center">
   <figure>
     <img src="docs/img/dp.png"> 
     <br>
-    <figcaption> Figura 8: Instrução DP para definir um polígono na tela </figcaption>
+    <figcaption> Figura 8: Instrução DP para definir um polígono na tela. </figcaption>
   </figure>
   </div>
-
-  Texto
+  <br>
 
 <div align="center">
   <figure>
     <img src="docs/img/dp_size_setting.png"> 
     <br>
-    <figcaption> Figura 9: Tamanhos de polígono </figcaption>
+    <figcaption> Tabela 1: Tamanhos de polígono. </figcaption>
   </figure>
   </div>
+  <br>
 
   #### 2.4.2. Monitor CRT
 
@@ -204,9 +215,37 @@ Os zumbis movem-se lentamente, enquanto os lobisomens são rápidos e os vampiro
   <figure>
     <img src="docs/img/crt.jpg"> 
     <br>
-    <figcaption> Figura 10: Imagem renderizada pela CoLenda no DELL M782p </figcaption>
+    <figcaption> Figura 9: Imagem renderizada pela CoLenda no DELL M782p. </figcaption>
   </figure>
   </div>
+  <br>
+
+  #### 2.4.3. Display de 7 segmentos
+
+  A placa DE1-SoC possui seis displays de 7 segmentos. Esses displays são emparelhados para exibir números em vários tamanhos. A figura 11 mostra a conexão dos sete segmentos (anodo comum) aos pinos do FPGA Cyclone V SoC. O segmento pode ser ligado ou desligado aplicando um nível lógico baixo ou alto, respectivamente, do FPGA. Cada segmento em um display é indexado de 0 a 6.
+
+  <div align="center">
+  <figure>
+    <img src="docs/img/display7segpins.png"> 
+    <br>
+    <figcaption> Figura 10: Conexões do display de 7 segmentos. </figcaption>
+  </figure>
+  </div>
+  <br>
+
+  #### 2.4.4. Push-buttons
+
+  A placa possui quatro botões conectados ao FPGA, conforme ilustrado na Figura 12, que mostra as conexões entre os botões e o FPGA Cyclone V SoC. Os quatro botões, denominados KEY0, KEY1, KEY2 e KEY3, recebem um debounce e são conectados diretamente ao FPGA Cyclone V SoC. Quando pressionado, o botão gera um nível lógico baixo, e quando não pressionado, um nível lógico alto.
+
+  <div align="center">
+  <figure>
+    <img src="docs/img/pushbuttons.png"> 
+    <br>
+    <figcaption> Figura 11: Diagrama dos botões presentes na FPGA. </figcaption>
+  </figure>
+  </div>
+  <br>
+
 
   </div>
 
@@ -220,7 +259,9 @@ Os zumbis movem-se lentamente, enquanto os lobisomens são rápidos e os vampiro
   <div id="driver" align="justify"> 
   <h3> 3.1. Driver de módulo kernel</h3>
 
-  Foi desenvolvido um driver de módulo <i>kernel</i> a fim de gerenciar estas instruções com o uso de uma biblioteca, cuja metodologia de desenvolvimento pode ser acessada através [<u>deste link</u>](https://github.com/ZeDaManga01/PBL-02-MI---Sistemas-Digitais).
+  Foi desenvolvido um driver de módulo <i>kernel</i> a fim de gerenciar estas instruções com o uso de uma biblioteca, cuja metodologia de desenvolvimento pode ser acessada através [<u>deste link</u>](https://github.com/ZeDaManga01/PBL-02-MI---Sistemas-Digitais). Isso se deve à substituição do NIOS II pelo processador ARM presente no Kit DE1-SoC, onde foi necessário implementar um novo meio de comunicação entre o processador e os barramentos. A biblioteca desenvolvida dispõe de seis funções, projetadas com tratamento dos dados recebidos e deslocamento de bits, a fim de ser gerenciado pelo driver de módulo kernel.
+
+  Abaixo, há as declarações das funções disponíveis na biblioteca. A sua implementação foi de suma importância, uma vez que facilitou o processo de renderizar as imagens do jogo na tela. 
 
   ```c
   #define DRIVER_NAME "/dev/colenda_driver" // Caminho do arquivo nó do driver
@@ -243,31 +284,36 @@ Os zumbis movem-se lentamente, enquanto os lobisomens são rápidos e os vampiro
   <div id="sprite" align="justify"> 
   <h3> 3.2. Criação dos cenários e sprites </h3>
 
-  Os cenários e sprites dos monstros foram criados utilizando a plataforma online Piskel, que permite a exportação dos sprites como vetores de cores RGBA codificadas em hexadecimal. Para ler esses arrays e convertê-los em informações compatíveis com a biblioteca da GPU CoLenda, foi desenvolvida uma função específica. Esta função converte os números hexadecimais em seus valores correspondentes de RGBA (variando de 0 a 255 para vermelho, verde, azul e alfa, que indica a transparência do pixel). Além disso, foi implementada uma função de normalização para ajustar esses valores, dividindo cada componente da cor por 32 para que se encaixem em 3 bits cada (variando de 0 a 7).
+  Os cenários e sprites dos monstros foram criados utilizando a plataforma online Piskel, que permite a exportação dos sprites como vetores de cores RGBA codificadas em hexadecimal. 
 
   <div align="center">
   <figure>
     <img src="docs/img/zombie.png">
     <br>
-    <figcaption>Figura 11: Sprite do zumbi</figcaption>
+    <figcaption>Figura 12: Sprite do zumbi.</figcaption>
   </figure>
   </div>
+  <br>
 
   <div align="center">
   <figure>
     <img src="docs/img/werewolf.png">
     <br>
-    <figcaption>Figura 12: Sprite do lobisomem</figcaption>
+    <figcaption>Figura 13: Sprite do lobisomem.</figcaption>
   </figure>
   </div>
+  <br>
 
   <div align="center">
   <figure>
     <img src="docs/img/vampire.png">
     <br>
-    <figcaption>Figura 13: Sprite do vampiro</figcaption>
+    <figcaption>Figura 14: Sprite do vampiro.</figcaption>
   </figure>
   </div>
+  <br>
+
+  Para ler esses arrays e convertê-los em informações compatíveis com a biblioteca da GPU CoLenda, foi desenvolvida uma biblioteca específica. Nomeada de <i>hexdecode</i>, esta biblioteca converte os números hexadecimais em seus valores correspondentes de RGBA (variando de 0 a 255 para vermelho, verde, azul e alfa, que indica a transparência do pixel). Além disso, há uma função de normalização para ajustar esses valores, dividindo cada componente da cor por 32 para que se encaixem em 3 bits cada (variando de 0 a 7).
 
   ```c
   typedef struct {
@@ -286,19 +332,15 @@ Os zumbis movem-se lentamente, enquanto os lobisomens são rápidos e os vampiro
   <div id="code" align="justify"> 
   <h3> 3.3. Captura de eventos do mouse </h3>
 
-  <div align="center">
-  <figure>
-    <img src="docs/img/mouse_displacement.png">
-    <br>
-    <figcaption>Figura 14: Plano cartesiano do deslocamento do mouse</figcaption>
-  </figure>
-  </div>
+  Neste problema, a captura de eventos do mouse também se mostrou extremamente importante, dado que uma das restrições era a combinação das ações do mouse para o ator do jogo. No contexto deste projeto, a biblioteca de captura de eventos do mouse, desenvolvida nos [<u>problemas anteriores</u>](https://github.com/ZeDaManga01/PBL-01-MI---Sistemas-Digitais), foi reutilizada.
+
+  Entretanto, algumas melhorias foram feitas para tornar a biblioteca mais robusta e responsível. A título de exemplo, a principal alteração para a biblioteca foi a implementação de uma pseudomáquina de estados de Mealy, demonstrada pela figura 16. Essa máquina de estados, implementada a nível de software, registra apenas um único nível lógico alto de clique ou de liberação do botão do mouse, ao invés de registrar vários níveis lógicos altos.
 
   <div align="center">
   <figure>
     <img src="docs/img/mouse_mealy_fsm.png">
     <br>
-    <figcaption>Figura 15: Diagrama da máquina de Mealy (FSM) do mouse</figcaption>
+    <figcaption>Figura 15: Diagrama da máquina de Mealy (FSM) do mouse.</figcaption>
   </figure>
   </div>
 
@@ -323,18 +365,20 @@ Os zumbis movem-se lentamente, enquanto os lobisomens são rápidos e os vampiro
   <figure> 
     <img src="docs/img/vampire_movement.png">
     <br>
-    <figcaption>Figura 16: Diagrama da movimentação do vampiro</figcaption> 
+    <figcaption>Figura 16: Diagrama da movimentação do vampiro.</figcaption> 
   </figure>
   </div>
 
   Essa lógica faz com que o monstro alterne sua direção vertical sempre que ultrapassa o ponto fixo yo, resultando em um movimento senoidal.
+
+  A movimentação do mouse na tela foi possível através da declaração de uma estrutura para o cursor, que armazena a posição atual, e uma função que calcula a nova posição do cursor de acordo com o deslocamento do mouse. O código dispõe de uma função, da biblioteca da GPU CoLenda, de renderizar um sprite cuja posição é relativa ao cursor do mouse. Por fim, também dispõe de uma função para prender o cursor na tela, impossibilitando que a posição do cursor ultrapasse as limitações da tela. Essa mesma função também é utilizada para manter o vampiro dentro dos limites da tela, pois seria possível do vampiro sair dos limites da tela em caso contrário, dificultando a mira do jogador.
 
   </div>
 
   <div id="fpga" align="justify">
   <h3> 3.5. Componentes da FPGA </h3>
 
-  Mapeamento de memória
+  As informações dos componentes da FPGA utilizados (push-buttons e display de 7 segmentos) foram armazenados em uma estrutura, descrita na biblioteca <i>fpga</i>, e podem ser controlados por meio do mapeamento de memória. A estrutura armazena os ponteiros para os endereços de memória desses componentes, e é possível controlá-los atribuindo informações para o conteúdo desses ponteiros.
 
   ```c
   typedef struct fpga_map_arm_t {
@@ -358,7 +402,13 @@ Os zumbis movem-se lentamente, enquanto os lobisomens são rápidos e os vampiro
   <div id="keys" align="justify">
   <h4> 3.5.1. Botões </h3>
 
-  Os botões
+  Os botões, assim como o mouse, possuem uma pseudomáquina de estados implementada no código do jogo, para que o nível lógico alto seja capturado em apenas uma iteração do laço de execução do jogo. Eles são responsáveis por controlar o fluxo do jogo, sendo atribuídos com a pausa, retorno e saída da seguinte maneira:
+  
+  - O KEY 0 é responsável por iniciar o jogo e retornar ao menu principal;
+  - O KEY 1 é responsável por pausar o jogo;
+  - O KEY 2 é responsável por encerrar a execução do jogo.
+  
+  Abaixo, há o protótipo da função de ler as informações dos botões.
 
   ```c
   void readkeys(fpga_map_arm_t fpga_map, int *pressed_keys, size_t size); // Função que lê os estados dos botões e os coloca no vetor pressed_keys
@@ -369,15 +419,18 @@ Os zumbis movem-se lentamente, enquanto os lobisomens são rápidos e os vampiro
   <div id="svnsg" align="justify">
   <h3> 3.5.2. Display de 7 segmentos </h3>
 
-  O display
+  Para o display de 7 segmentos, foi atribuída a responsabilidade de mostrar a pontuação atual do jogador. Foi necessário implementar a lógica de ativação dos dígitos por meio de uma tabela verdade, exemplificada na Tabela 2.
 
   <div align="center">
   <figure> 
     <img src="docs/img/7seg_truth_table.png">
     <br>
-    <figcaption>Figura 17: Tabela verdade do <i>display</i> de 7 segmentos</figcaption> 
+    <figcaption>Tabela 2: Tabela verdade do <i>display</i> de 7 segmentos.</figcaption> 
   </figure>
   </div>
+  <br>
+
+  Antes do conteúdo ser atribuído ao dígito correspondente, todos os bits das saídas recebidas pela FPGA são invertidos, porque, como exemplificado na subseção 2.4.3, o display de 7 segmentos presente na DE1-SoC é do tipo ânodo comum. As funções abaixos são responsáveis por realizar a manipulação correta desses dados.
 
   ```c
   int numbertodigit (int number); // Função que converte um número de 0 a 9 em suas saídas correspondentes do display de 7 segmentos
@@ -388,33 +441,76 @@ Os zumbis movem-se lentamente, enquanto os lobisomens são rápidos e os vampiro
 
 
   <div id="code" align="justify"> 
-  <h3> 3.6. Código </h3>
+  <h3> 3.6. Dinâmica do jogo </h3>
 
-  O jogo foi dividido em threads, a fim de tornar a verificação dos botões e movimentos do mouse em paralelo, consequentemente aumentando o desempenho.
+  Assim que o jogo é iniciado, entidades com atributos aleatórios são geradas em um intervalo de tempo fixo. A cada iteração do laço de repetição do jogo, a posição de todas as entidades é atualizada, percorrendo o vetor principal que armazena as suas informações e o vetor auxiliar de valores booleanos que indicam se há uma entidade nessa posição ou não.
+
+  Há 20 (vinte) espaços no vetor de entidades. Quando uma entidade é gerada, ela é colocada no primeiro espaço disponível do vetor principal. Um laço de repetição percorre o vetor auxiliar procurando por um espaço disponível, e se não o encontrar, significa que todos os espaços estão preenchidos (*i.e.*, há vinte entidades na tela), e nenhuma nova entidade é gerada.
+
+  Quando um clique do botão esquerdo do mouse é capturado, o código pausa e começa a percorrer todo o vetor de entidades. Se a posição atual do cursor colidir com a posição de uma entidade na tela, a entidade é removida, o jogador ganha a quantidade de pontos referente à entidade abatida: 100 (cem) pontos para zumbi, 300 (trezentos) pontos para lobisomem e 500 (quinhentos) pontos para o vampiro, e há um retorno visual. Em caso contrário, o jogo continua com o fluxo normal. Uma entidade também é removida quando ela ultrapassa o limite horizontal da tela, e o jogador perde uma vida. Caso o jogador perca todas as 5 (cinco) vidas, o jogo mostra uma tela de derrota e volta ao menu principal. Caso o jogador consiga abater 40 (quarenta) entidades, uma tela indicando a sua vitória é mostrada e o jogo também retorna ao menu principal. Uma função que testa a colisão entre duas entidades foi implementada, e, mesmo que as entidades tenham tamanho 20x20 pixels, elas possuem *hitboxes* um pouco maiores de tamanho 30x30, enquanto a *hitbox* do mouse é de tamanho 20x20.
+
+  ```c
+  int checkcollision(int x1, int y1, int x2, int y2, int size_x1, int size_y1, int size_x2, int size_y2); // Função que testa a colisão entre duas entidades.
+  ```
+
+  Quando o clique direito do mouse é capturado, o jogador troca de munição, alternando entre três tipos de munição diferentes. O tipo de munição selecionado deve corresponder ao tipo da entidade a ser abatida, senão, ela permanece na tela até ser eliminada, seja pelo jogador ou pelo próprio jogo. A Figura 17 apresenta o fluxograma do funcionamento do código.
 
   <div align="center">
   <figure> 
     <img src="docs/img/gameflowchart.png">
     <br>
-    <figcaption>Figura 18: Fluxograma do jogo</figcaption> 
+    <figcaption>Figura 17: Fluxograma do jogo.</figcaption> 
   </figure>
   </div>
+  <br>
+
+  O fluxo do jogo pode ser alterado ou interrompido a qualquer momento com o uso dos botões. Nesse caso, não é considerado nem vitória e nem derrota do jogador.
+
+  Com o auxílio da biblioteca *pthreads,* o jogo foi dividido em *threads*, a fim de tornar a verificação dos botões e movimentos do mouse em paralelo, consequentemente aumentando o desempenho. A <i>thread</i> principal do jogo é responsável por renderizar a tela e atualizar a posição e velocidade das entidades do jogo, enquanto a *thread* do mouse é responsável por capturar os eventos do mouse e a *thread* dos botões, de forma análoga, é responsável por capturar os eventos dos *push-buttons* da FPGA.
+
+  É importante salientar que, para que os botões tenham prioridade sobre o controle das outras duas *threads* do jogo, as outras duas *threads* possuem mecanismos de pausa. São úteis também quando a *thread* do mouse deseja percorrer o vetor de entidades para identificar a entidade a ser abatida. Assim, a *thread* do jogo é pausada para evitar possíveis condições de corrida. 
 
   </div>
+
+  <div id="test" align="justify"> 
+  <h3> 3.7. Testes</h3>
+  </div>
+
+  A figura 18 demonstra um "teste de estresse" para a GPU CoLenda, sendo uma etapa crucial para conferir a possibilidade de animações das entidades na tela. Foi implementada a movimentação de um elemento passivo na tela, enquanto a posição de 20 (vinte) elementos era atualizada a cada iteração do lado de repetição. A GPU CoLenda mostrou não ter engasgos ao renderizar várias entidades trocando de posição simultaneamente.
+
+  <div align="center">
+  <figure> 
+    <img src="docs/img/stress-test.gif">
+    <br>
+    <figcaption>Figura 18: Teste de estresse da GPU CoLenda.</figcaption> 
+  </figure>
+  </div>
+  <br>
+
+  A figura 19 apresenta os testes feitos para a movimentação dos elementos na tela, assim como um rascunho para o plano de fundo utilizado no jogo com o auxílio da biblioteca *hexdecode*.
+
+  <div align="center">
+  <figure> 
+    <img src="docs/img/movement.gif">
+    <br>
+    <figcaption>Figura 19: Teste de background e da movimentação das entidades do jogo.</figcaption> 
+  </figure>
+  </div>
+  <br>
   
 </div>
 
-<div id="test"> 
+<div id="result" align="justify"> 
 <h2> 4. Resultados e discussões</h2>
-<div align="justify">
+</div>
 
-Esta sessão é reservada para demonstração dos testes feitos no projeto.
+As figuras abaixo estão reservadas para a demonstração dos resultados obtidos do jogo.
 
 <div align="center">
 <figure>
   <img src="docs/img/gameplay.gif">
   <br>
-  <figcaption>Figura 19: Menu principal e jogabilidade</figcaption>
+  <figcaption>Figura 20: Menu principal e jogabilidade</figcaption>
 </figure>
 </div>
 
@@ -422,7 +518,7 @@ Esta sessão é reservada para demonstração dos testes feitos no projeto.
 <figure>
   <img src="docs/img/win.gif">
   <br>
-  <figcaption>Figura 20: Tela de vitória do jogo</figcaption>
+  <figcaption>Figura 21: Tela de vitória do jogo</figcaption>
 </figure>
 </div>
 
@@ -430,7 +526,7 @@ Esta sessão é reservada para demonstração dos testes feitos no projeto.
 <figure>
   <img src="docs/img/defeat.gif">
   <br>
-  <figcaption>Figura 21: Tela de derrota do jogo</figcaption>
+  <figcaption>Figura 22: Tela de derrota do jogo</figcaption>
 </figure>
 </div>
 
@@ -438,14 +534,16 @@ Esta sessão é reservada para demonstração dos testes feitos no projeto.
 <figure>
   <img src="docs/img/display7seg.gif">
   <br>
-  <figcaption>Figura 22: Display de 7 segmentos contabilizando os pontos</figcaption>
+  <figcaption>Figura 23: Display de 7 segmentos contabilizando os pontos</figcaption>
 </figure>
 </div>
 
 <div id="resultconcl" align="justify"> 
 <h2> 5. Conclusão</h2>
 
-Conclui-se que o projeto foi implementado de forma satisfatória. O driver e a biblioteca se mostraram funcionais e atenderam aos requisitos propostos. Ademais, foi essencial para expandir o conhecimento acerca do kit de desenvolvimento, GNU/Linux embarcado e a comunicação hardware/software, contribuindo para a sofisticação de projetos futuros a serem implementados no kit de desenvolvimento DE1-SoC.
+Conclui-se que o projeto foi implementado de forma satisfatória, atendendo com êxito a todos os requisitos impostos na subseção 2.1. O driver reutilizado dos problemas anteriores se mostrou funcional, renderizando os elementos na tela sem perdas de performance significativas. Além disso, as bibliotecas desenvolvidas e melhoradas para o código e para controlar os elementos da FPGA são funcionais, e a implementação de *threads* foi essencial para garantir que o desempenho do jogo não fosse afetado da mesma forma que seria se implementado em série.
+
+Este projeto foi essencial para expandir o conhecimento acerca do Kit de Desenvolvimento, GNU/Linux embarcado e a comunicação hardware/software, e espera-se que o estudo das bibliotecas e os testes realizados contribuam para a eficiência e sofisticação de projetos futuros envolvendo o Kit de Desenvolvimento DE1-SoC e a GPU CoLenda.
 </div>
 
 
