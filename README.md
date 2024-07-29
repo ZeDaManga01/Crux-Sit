@@ -282,7 +282,7 @@ Os zumbis movem-se lentamente, enquanto os lobisomens são rápidos e os vampiro
   </div>
 
   <div id="sprite" align="justify"> 
-  <h3> 3.2. Criação dos cenários e *sprites* </h3>
+  <h3> 3.2. Criação dos cenários e sprites </h3>
 
   Os cenários e *sprites* dos monstros foram criados utilizando a plataforma online [<u>Piskel</u>](https://www.piskelapp.com/), que permite a exportação dos sprites como vetores de cores RGBA codificadas em hexadecimal. 
 
